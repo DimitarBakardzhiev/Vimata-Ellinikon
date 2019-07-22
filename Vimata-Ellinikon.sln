@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vimata.Web", "Vimata.Web\Vimata.Web.csproj", "{12365B20-50E9-4245-8D34-7ADEBB3F156C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vimata.Data", "Vimata.Data\Vimata.Data.csproj", "{E320E458-287B-40AB-9065-0992ADDC9214}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{12365B20-50E9-4245-8D34-7ADEBB3F156C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12365B20-50E9-4245-8D34-7ADEBB3F156C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12365B20-50E9-4245-8D34-7ADEBB3F156C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E320E458-287B-40AB-9065-0992ADDC9214}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E320E458-287B-40AB-9065-0992ADDC9214}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E320E458-287B-40AB-9065-0992ADDC9214}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E320E458-287B-40AB-9065-0992ADDC9214}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
