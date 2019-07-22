@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29102.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vimata.Web", "Vimata.Web\Vimata.Web.csproj", "{12365B20-50E9-4245-8D34-7ADEBB3F156C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{12365B20-50E9-4245-8D34-7ADEBB3F156C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12365B20-50E9-4245-8D34-7ADEBB3F156C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12365B20-50E9-4245-8D34-7ADEBB3F156C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12365B20-50E9-4245-8D34-7ADEBB3F156C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {11E291DA-EAD7-4B5C-A959-904A3A8B4070}
+	EndGlobalSection
+EndGlobal
