@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vimata.Data;
 
 namespace Vimata.Data.Migrations
 {
     [DbContext(typeof(VimataDbContext))]
-    partial class VimataDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190724081104_Timestamps")]
+    partial class Timestamps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
