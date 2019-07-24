@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vimata.Common\Vimata.Common.csproj" />
+    <ProjectReference Include="..\Vimata.Data\Vimata.Data.csproj" />
+    <ProjectReference Include="..\Vimata.ViewModels\Vimata.ViewModels.csproj" />
+  </ItemGroup>
+
+</Project>
