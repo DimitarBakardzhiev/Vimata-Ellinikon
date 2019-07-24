@@ -36,6 +36,16 @@
             }
 
             // authentication successful so generate jwt token
+            user.Token = GetJwtToken(user);
+
+            // remove password before returning
+            user.Password = null;
+
+            return user;
+        }
+
+        private string GetJwtToken(User user)
+        {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -47,13 +57,9 @@
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            user.Token = tokenHandler.WriteToken(token);
-
-            // remove password before returning
-            user.Password = null;
-
-            return user;
+            return tokenHandler.WriteToken(token);
         }
 
         public async Task<bool> ExistsUser(string email)
