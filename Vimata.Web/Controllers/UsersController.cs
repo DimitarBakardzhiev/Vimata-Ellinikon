@@ -50,12 +50,19 @@
         [HttpPost("signup")]
         public async Task<IActionResult> Signup([FromBody]SignupVM newUser)
         {
-            if (!ModelState.IsValid || await userService.IsUsedEmail(newUser.Email))
+            if (!ModelState.IsValid)
             {
                 return BadRequest(newUser);
             }
 
+            if (await userService.IsUsedEmail(newUser.Email))
+            {
+                return Conflict();
+            }
+
             var user = await userService.SignupUser(newUser);
+            user = await userService.AuthenticateAsync(newUser.Email, newUser.Password);
+
             return Ok(user);
         }
     }
