@@ -1,41 +1,26 @@
 namespace Tests
 {
-    using NUnit.Framework;
     using Vimata.Common;
+    using Xunit;
 
     public class HasherTests
     {
-        [SetUp]
-        public void Setup()
+        [Theory]
+        [InlineData("asd", "asd", true)]
+        [InlineData("asd", "dsa", false)]
+        [InlineData("ASD", "ASD", true)]
+        [InlineData("123", "123", true)]
+        [InlineData("", "", true)]
+        public void SameStringsShouldHaveTheSameHashAndDifferentStringsShouldHaveDifferent(string s1, string s2, bool shouldBeTheSame)
         {
+            string hash1 = Hasher.GetHashString(s1);
+            string hash2 = Hasher.GetHashString(s2);
+
+            Assert.Equal(shouldBeTheSame, hash1 == hash2);
         }
 
-        [Test]
-        public void TestEqualStringsHash()
-        {
-            string a = "asd";
-            string b = "asd";
-
-            string aHash = Hasher.GetHashString(a);
-            string bHash = Hasher.GetHashString(b);
-
-            Assert.AreEqual(aHash, bHash);
-        }
-
-        [Test]
-        public void TestDifferentStringsHash()
-        {
-            string a = "asd";
-            string b = "dsa";
-
-            string aHash = Hasher.GetHashString(a);
-            string bHash = Hasher.GetHashString(b);
-
-            Assert.AreNotEqual(aHash, bHash);
-        }
-
-        [Test]
-        public void ShouldBeCaseSensitive()
+        [Fact]
+        public void HasherShouldBeCaseSensitive()
         {
             string a = "asd";
             string b = "ASD";
@@ -43,7 +28,7 @@ namespace Tests
             string aHash = Hasher.GetHashString(a);
             string bHash = Hasher.GetHashString(b);
 
-            Assert.AreNotEqual(aHash, bHash);
+            Assert.NotEqual(aHash, bHash);
         }
     }
 }

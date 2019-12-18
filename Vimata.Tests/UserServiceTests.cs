@@ -1,57 +1,142 @@
 ﻿namespace Vimata.Tests
 {
-    using Microsoft.Extensions.Options;
-    using Moq;
-    using NUnit.Framework;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
     using System.Threading.Tasks;
+
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Options;
+    using Moq;
     using Vimata.Common;
+    using Vimata.Data;
     using Vimata.Data.Models;
     using Vimata.Data.Repositories;
-    using Vimata.Services.Contracts;
     using Vimata.Services.Implementations;
+    using Vimata.ViewModels.Users;
+    using Xunit;
 
     public class UserServiceTests
     {
-        [Test]
-        public async Task ExistsUserIsTrueWhenExisting()
+        private IOptions<AppSettings> appSettings;
+
+        public UserServiceTests()
         {
-            var users = new List<User>();
-            users.Add(new User { Email = "asd" });
-            users.Add(new User { Email = "dsa" });
-
-            var repositoryMock = new Mock<IRepository<User>>();
-            string user = "asd";
-            repositoryMock.Setup(r => r.FirstOrDefaultAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(users.FirstOrDefault(u => u.Email == user));
-            var optionsMock = new Mock<IOptions<AppSettings>>();
-            optionsMock.Setup(o => o.Value).Returns(new AppSettings());
-            var userServices = new UserService(optionsMock.Object, repositoryMock.Object);
-
-            var result = await userServices.ExistsUser(user);
-
-            Assert.AreEqual(result, true);
+            var appSettingsMock = new Mock<IOptions<AppSettings>>();
+            appSettingsMock.SetupGet(s => s.Value).Returns(new AppSettings { Secret = "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf" });
+            this.appSettings = appSettingsMock.Object;
         }
 
-        [Test]
-        public async Task ExistsUserIsFalseWhenNotExisting()
+        [Theory]
+        [InlineData("adsfarege", false)]
+        [InlineData("", false)]
+        [InlineData("dsa", true)]
+        [InlineData("asd", true)]
+        public async Task ExistsUserIsTrueWhenExistingAndFalseWhenNotExisting(string email, bool exists)
         {
+            // Arrange
             var users = new List<User>();
             users.Add(new User { Email = "asd" });
             users.Add(new User { Email = "dsa" });
 
-            var repositoryMock = new Mock<IRepository<User>>();
-            string user = "asdfasdf";
-            repositoryMock.Setup(r => r.FirstOrDefaultAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(users.FirstOrDefault(u => u.Email == user));
-            var optionsMock = new Mock<IOptions<AppSettings>>();
-            optionsMock.Setup(o => o.Value).Returns(new AppSettings());
-            var userServices = new UserService(optionsMock.Object, repositoryMock.Object);
+            var db = GetInMemoryDb();
+            db.Users.AddRange(users);
+            db.SaveChanges();
 
-            var result = await userServices.ExistsUser(user);
+            var repo = new Repository<User>(db);
 
-            Assert.AreNotEqual(result, true);
+            var userServices = new UserService(appSettings, repo);
+
+            // Act
+            bool result = await userServices.ExistsUser(email);
+
+            // Assert
+            Assert.Equal(exists, result);
+        }
+
+        [Theory]
+        [InlineData("", "", false)]
+        [InlineData("test@abv.bg", "gG1@3561fa", true)]
+        [InlineData("faef", "gG1@3561fa", false)]
+        [InlineData("test@abv.bg", "1234", false)]
+        [InlineData("test@abv,bg", null, false)]
+        [InlineData(null, null, false)]
+        public async Task AuthenticateExistingUserWithCorrectEmailAndPasswordAndRejectWrongInput(string email, string password, bool shouldAuthenticate)
+        {
+            // Arrange
+            var db = GetInMemoryDb();
+            var usersRepo = new Repository<User>(db);
+            var userService = new UserService(appSettings, usersRepo);
+            var user = new User
+            {
+                Email = "test@abv.bg",
+                Username = "test@abv.bg",
+                Password = Hasher.GetHashString("gG1@3561fa")
+            };
+
+            db.Users.Add(user);
+            db.SaveChanges();
+
+            // Act
+            var authUser = await userService.AuthenticateAsync(email, password);
+
+            // Assert
+            Assert.Equal(shouldAuthenticate, authUser != null);
+
+            if (authUser != null)
+            {
+                Assert.NotNull(authUser.Token);
+                Assert.Null(authUser.Password);
+            }
+        }
+
+        [Theory]
+        [InlineData("", false)]
+        [InlineData("asd", true)]
+        [InlineData(null, false)]
+        [InlineData("arght", false)]
+        public async Task IsUsedEmailReturnsCorrectValues(string email, bool exists)
+        {
+            // Arrange
+            var db = GetInMemoryDb();
+            var usersRepo = new Repository<User>(db);
+            var userService = new UserService(appSettings, usersRepo);
+
+            db.Users.AddRange(new User { Email = "asd" }, new User { Email = "pesho" }, new User { Email = "gosho" });
+            db.SaveChanges();
+
+            // Act
+            bool result = await userService.IsUsedEmail(email);
+
+            // Assert
+            Assert.Equal(exists, result);
+        }
+
+        [Fact]
+        public async Task SignUpUserShouldCreateUserEntity()
+        {
+            // Arrange
+            var db = GetInMemoryDb();
+            var usersRepo = new Repository<User>(db);
+            var userService = new UserService(appSettings, usersRepo);
+
+            string email = "pesho@abv.bg";
+            string password = "asdfASF@!1";
+
+            // Act
+            await userService.SignupUser(new SignupVM { Email = email, Password = password, ConfirmPassword = password });
+
+            // Assert
+            Assert.Equal(1, await db.Users.CountAsync());
+            Assert.NotNull(await db.Users.FirstOrDefaultAsync(u => u.Email == email));
+        }
+
+        private VimataDbContext GetInMemoryDb()
+        {
+            var options = new DbContextOptionsBuilder<VimataDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            return new VimataDbContext(options);
         }
     }
 }

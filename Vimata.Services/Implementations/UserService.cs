@@ -28,6 +28,11 @@
 
         public async Task<User> AuthenticateAsync(string email, string password)
         {
+            if (email == null || password == null)
+            {
+                return null;
+            }
+
             var user = await usersRepository.FirstOrDefaultAsync(u => u.Email == email && u.Password == Hasher.GetHashString(password)); //_users.SingleOrDefault(x => x.Username == username && x.Password == password);
 
             if (user == null)
