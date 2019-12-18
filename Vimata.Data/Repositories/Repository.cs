@@ -17,7 +17,7 @@
             Context = context;
         }
 
-        public Task<T> GetByIdAsync(int id) => Context.Set<T>().FindAsync(id);
+        public async Task<T> GetByIdAsync(int id) => await Context.Set<T>().FindAsync(id);
 
         public Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
             => Context.Set<T>().FirstOrDefaultAsync(predicate);

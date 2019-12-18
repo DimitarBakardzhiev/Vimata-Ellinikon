@@ -13,7 +13,7 @@
 
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]/[action]")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService userService;
@@ -24,7 +24,13 @@
         }
 
         [AllowAnonymous]
-        [HttpPost("authenticate")]
+        public IActionResult Index()
+        {
+            return Ok("works");
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
         public async Task<IActionResult> Authenticate([FromBody]SigninVM userParam)
         {
             if (await userService.ExistsUser(userParam.Email) == false)
@@ -47,7 +53,7 @@
         }
 
         [AllowAnonymous]
-        [HttpPost("signup")]
+        [HttpPost]
         public async Task<IActionResult> Signup([FromBody]SignupVM newUser)
         {
             if (!ModelState.IsValid)
