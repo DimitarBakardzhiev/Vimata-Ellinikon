@@ -35,7 +35,7 @@ namespace Vimata.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddControllers();
 
             var connection = "Server=.;Database=Vimata-Ellinikon;Trusted_Connection=True;ConnectRetryCount=0";
             services.AddDbContext<VimataDbContext>(options => options.UseSqlServer(connection));
@@ -93,8 +93,8 @@ namespace Vimata.Web
                 .AllowAnyHeader());
 
             app.UseRouting();
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

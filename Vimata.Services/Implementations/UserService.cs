@@ -33,17 +33,14 @@
                 return null;
             }
 
-            var user = await usersRepository.FirstOrDefaultAsync(u => u.Email == email && u.Password == Hasher.GetHashString(password)); //_users.SingleOrDefault(x => x.Username == username && x.Password == password);
+            var user = await usersRepository.FirstOrDefaultAsync(u => u.Email == email && u.Password == Hasher.GetHashString(password));
 
             if (user == null)
             {
                 return null;
             }
 
-            // authentication successful so generate jwt token
             user.Token = GetJwtToken(user);
-
-            // remove password before returning
             user.Password = null;
 
             return user;

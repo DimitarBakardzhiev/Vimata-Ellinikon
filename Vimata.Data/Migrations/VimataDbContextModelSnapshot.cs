@@ -23,24 +23,33 @@ namespace Vimata.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("CreatedDate");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("FirstName");
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LastName");
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("ModifiedDate");
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("Password");
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Token");
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Username");
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
