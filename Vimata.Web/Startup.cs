@@ -68,7 +68,8 @@ namespace Vimata.Web
             // configure DI for application services
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-            services.AddScoped<IUserService, UserService>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ITopicService, TopicService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

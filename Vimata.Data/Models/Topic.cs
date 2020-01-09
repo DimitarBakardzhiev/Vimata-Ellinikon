@@ -10,6 +10,8 @@
         [Required]
         public string Title { get; set; }
 
+        public string Image { get; set; }
+
         public ICollection<Exercise> Exercises { get; set; }
     }
 }
