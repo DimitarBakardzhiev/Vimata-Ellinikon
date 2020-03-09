@@ -10,8 +10,8 @@ using Vimata.Data;
 namespace Vimata.Data.Migrations
 {
     [DbContext(typeof(VimataDbContext))]
-    [Migration("20200108105158_TopicsExercisesAnswers")]
-    partial class TopicsExercisesAnswers
+    [Migration("20200309145505_MedalsUsersLessons")]
+    partial class MedalsUsersLessons
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,7 @@ namespace Vimata.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Vimata.Data.Models.Answer", b =>
+            modelBuilder.Entity("Vimata.Data.Models.Lesson", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -31,78 +31,78 @@ namespace Vimata.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ExerciseId")
-                        .HasColumnType("int");
+                    b.Property<string>("LessonTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Text")
+                    b.HasKey("Id");
+
+                    b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("Vimata.Data.Models.Medal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExerciseId");
+                    b.ToTable("Medals");
 
-                    b.ToTable("Answers");
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2020, 3, 9, 16, 55, 5, 163, DateTimeKind.Local).AddTicks(2358),
+                            Type = "Gold"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedDate = new DateTime(2020, 3, 9, 16, 55, 5, 165, DateTimeKind.Local).AddTicks(1508),
+                            Type = "Silver"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedDate = new DateTime(2020, 3, 9, 16, 55, 5, 165, DateTimeKind.Local).AddTicks(1547),
+                            Type = "Bronze"
+                        });
                 });
 
-            modelBuilder.Entity("Vimata.Data.Models.Exercise", b =>
+            modelBuilder.Entity("Vimata.Data.Models.MedalUserLesson", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CorrectAnswer")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TopicId")
+                    b.Property<int>("MedalId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Type")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<int>("LessonId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("TopicId");
+                    b.HasKey("MedalId", "UserId", "LessonId");
 
-                    b.ToTable("Exercises");
-                });
+                    b.HasIndex("LessonId");
 
-            modelBuilder.Entity("Vimata.Data.Models.Topic", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.HasIndex("UserId");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Topics");
+                    b.ToTable("MedalsUsersLessons");
                 });
 
             modelBuilder.Entity("Vimata.Data.Models.User", b =>
@@ -145,20 +145,23 @@ namespace Vimata.Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Vimata.Data.Models.Answer", b =>
+            modelBuilder.Entity("Vimata.Data.Models.MedalUserLesson", b =>
                 {
-                    b.HasOne("Vimata.Data.Models.Exercise", "Exercise")
-                        .WithMany("Answers")
-                        .HasForeignKey("ExerciseId")
+                    b.HasOne("Vimata.Data.Models.Lesson", "Lesson")
+                        .WithMany()
+                        .HasForeignKey("LessonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("Vimata.Data.Models.Exercise", b =>
-                {
-                    b.HasOne("Vimata.Data.Models.Topic", "Topic")
-                        .WithMany("Exercises")
-                        .HasForeignKey("TopicId")
+                    b.HasOne("Vimata.Data.Models.Medal", "Medal")
+                        .WithMany("UserLesson")
+                        .HasForeignKey("MedalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Vimata.Data.Models.User", "User")
+                        .WithMany("MedalLesson")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

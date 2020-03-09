@@ -19,8 +19,8 @@
 
         public async Task<T> GetByIdAsync(int id) => await Context.Set<T>().FindAsync(id);
 
-        public Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
-            => Context.Set<T>().FirstOrDefaultAsync(predicate);
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+            => await Context.Set<T>().FirstOrDefaultAsync(predicate);
 
         public async Task AddAsync(T entity)
         {
@@ -30,18 +30,18 @@
             await Context.SaveChangesAsync();
         }
 
-        public Task UpdateAsync(T entity)
+        public async Task UpdateAsync(T entity)
         {
             // In case AsNoTracking is used
             entity.ModifiedDate = DateTime.UtcNow;
             Context.Entry(entity).State = EntityState.Modified;
-            return Context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
 
-        public Task RemoveAsync(T entity)
+        public async Task RemoveAsync(T entity)
         {
             Context.Set<T>().Remove(entity);
-            return Context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()

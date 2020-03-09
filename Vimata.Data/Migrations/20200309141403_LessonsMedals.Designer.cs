@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vimata.Data;
 
 namespace Vimata.Data.Migrations
 {
     [DbContext(typeof(VimataDbContext))]
-    partial class VimataDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200309141403_LessonsMedals")]
+    partial class LessonsMedals
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,46 +63,6 @@ namespace Vimata.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Medals");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2020, 3, 9, 16, 55, 5, 163, DateTimeKind.Local).AddTicks(2358),
-                            Type = "Gold"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedDate = new DateTime(2020, 3, 9, 16, 55, 5, 165, DateTimeKind.Local).AddTicks(1508),
-                            Type = "Silver"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedDate = new DateTime(2020, 3, 9, 16, 55, 5, 165, DateTimeKind.Local).AddTicks(1547),
-                            Type = "Bronze"
-                        });
-                });
-
-            modelBuilder.Entity("Vimata.Data.Models.MedalUserLesson", b =>
-                {
-                    b.Property<int>("MedalId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LessonId")
-                        .HasColumnType("int");
-
-                    b.HasKey("MedalId", "UserId", "LessonId");
-
-                    b.HasIndex("LessonId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("MedalsUsersLessons");
                 });
 
             modelBuilder.Entity("Vimata.Data.Models.User", b =>
@@ -141,27 +103,6 @@ namespace Vimata.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Vimata.Data.Models.MedalUserLesson", b =>
-                {
-                    b.HasOne("Vimata.Data.Models.Lesson", "Lesson")
-                        .WithMany()
-                        .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Vimata.Data.Models.Medal", "Medal")
-                        .WithMany("UserLesson")
-                        .HasForeignKey("MedalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Vimata.Data.Models.User", "User")
-                        .WithMany("MedalLesson")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

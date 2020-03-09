@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vimata.Data.Models
 {
@@ -16,5 +17,7 @@ namespace Vimata.Data.Models
         public string Password { get; set; }
 
         public string Token { get; set; }
+
+        public List<MedalUserLesson> MedalLesson { get; set; }
     }
 }
