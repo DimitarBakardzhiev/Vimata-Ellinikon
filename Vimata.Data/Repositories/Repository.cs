@@ -49,9 +49,9 @@
             return await Context.Set<T>().ToListAsync();
         }
 
-        public async Task<IEnumerable<T>> GetWhereAsync(Expression<Func<T, bool>> predicate)
+        public IQueryable<T> GetWhere(Expression<Func<T, bool>> predicate)
         {
-            return await Context.Set<T>().Where(predicate).ToListAsync();
+            return Context.Set<T>().Where(predicate);
         }
 
         public Task<int> CountAllAsync() => Context.Set<T>().CountAsync();

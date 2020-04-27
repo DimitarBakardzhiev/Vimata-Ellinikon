@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vimata.Data;
 
 namespace Vimata.Data.Migrations
 {
     [DbContext(typeof(VimataDbContext))]
-    partial class VimataDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200419114157_AddExerciseOptions")]
+    partial class AddExerciseOptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,6 +28,9 @@ namespace Vimata.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<bool>("AreOptionsInGreek")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
@@ -38,6 +43,9 @@ namespace Vimata.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsGreekContent")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsHearingExercise")
                         .HasColumnType("bit");
 
@@ -46,12 +54,6 @@ namespace Vimata.Data.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("TextToSpeechContent")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("TextToSpeechOptions")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -93,6 +95,9 @@ namespace Vimata.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<bool>("ArePiecesInGreek")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
@@ -105,6 +110,9 @@ namespace Vimata.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsGreekContent")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsHearingExercise")
                         .HasColumnType("bit");
 
@@ -113,12 +121,6 @@ namespace Vimata.Data.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("TextToSpeechContent")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("TextToSpeechOptions")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -199,19 +201,19 @@ namespace Vimata.Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2020, 4, 27, 17, 51, 24, 898, DateTimeKind.Local).AddTicks(1436),
+                            CreatedDate = new DateTime(2020, 4, 19, 14, 41, 57, 477, DateTimeKind.Local).AddTicks(3559),
                             Type = "Gold"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2020, 4, 27, 17, 51, 24, 900, DateTimeKind.Local).AddTicks(1127),
+                            CreatedDate = new DateTime(2020, 4, 19, 14, 41, 57, 479, DateTimeKind.Local).AddTicks(2840),
                             Type = "Silver"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedDate = new DateTime(2020, 4, 27, 17, 51, 24, 900, DateTimeKind.Local).AddTicks(1173),
+                            CreatedDate = new DateTime(2020, 4, 19, 14, 41, 57, 479, DateTimeKind.Local).AddTicks(2878),
                             Type = "Bronze"
                         });
                 });
@@ -255,6 +257,9 @@ namespace Vimata.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsGreekContent")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsHearingExercise")
                         .HasColumnType("bit");
 
@@ -264,40 +269,11 @@ namespace Vimata.Data.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("TextToSpeechContent")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.HasIndex("LessonId");
 
                     b.ToTable("OpenExercises");
-                });
-
-            modelBuilder.Entity("Vimata.Data.Models.OpenExerciseAlternativeAnswer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ExerciseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExerciseId");
-
-                    b.ToTable("OpenExerciseAlternativeAnswer");
                 });
 
             modelBuilder.Entity("Vimata.Data.Models.SpeakingExercise", b =>
@@ -437,15 +413,6 @@ namespace Vimata.Data.Migrations
                     b.HasOne("Vimata.Data.Models.Lesson", "Lesson")
                         .WithMany("OpenExercises")
                         .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Vimata.Data.Models.OpenExerciseAlternativeAnswer", b =>
-                {
-                    b.HasOne("Vimata.Data.Models.OpenExercise", "Exercise")
-                        .WithMany("AlternativeAnswers")
-                        .HasForeignKey("ExerciseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

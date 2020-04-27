@@ -15,7 +15,7 @@ namespace Vimata.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedDate = table.Column<DateTime>(nullable: false),
                     ModifiedDate = table.Column<DateTime>(nullable: true),
-                    LessonTitle = table.Column<string>(nullable: false)
+                    Title = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {

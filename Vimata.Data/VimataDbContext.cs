@@ -16,6 +16,11 @@
         public DbSet<Medal> Medals { get; set; }
         public DbSet<MedalUserLesson> MedalsUsersLessons { get; set; }
 
+        public DbSet<ClosedExercise> ClosedExercises { get; set; }
+        public DbSet<DragAndDropExercise> DragAndDropExercises { get; set; }
+        public DbSet<OpenExercise> OpenExercises { get; set; }
+        public DbSet<SpeakingExercise> SpeakingExercises { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
@@ -23,7 +28,7 @@
                 .IsUnique();
 
             modelBuilder.Entity<Lesson>()
-                .Property(l => l.LessonTitle)
+                .Property(l => l.Title)
                 .HasConversion<string>();
 
             modelBuilder.Entity<Medal>()
@@ -31,6 +36,7 @@
                 .HasConversion<string>();
 
             this.MedalsSeed(modelBuilder);
+            this.LessonsSeed(modelBuilder);
 
             modelBuilder.Entity<MedalUserLesson>()
                 .HasKey(m => new { m.MedalId, m.UserId, m.LessonId });
@@ -44,6 +50,21 @@
                 .HasOne(u => u.User)
                 .WithMany(u => u.MedalLesson)
                 .HasForeignKey(u => u.UserId);
+
+            modelBuilder.Entity<ClosedExercise>()
+                .HasMany(e => e.Options)
+                .WithOne(o => o.Exercise)
+                .HasForeignKey(o => o.ExerciseId);
+
+            modelBuilder.Entity<DragAndDropExercise>()
+                .HasMany(e => e.Options)
+                .WithOne(o => o.Exercise)
+                .HasForeignKey(o => o.ExerciseId);
+
+            modelBuilder.Entity<OpenExercise>()
+                .HasMany(e => e.AlternativeAnswers)
+                .WithOne(a => a.Exercise)
+                .HasForeignKey(a => a.ExerciseId);
                 
             base.OnModelCreating(modelBuilder);
         }
@@ -54,6 +75,12 @@
                 new Medal() { Id = 1, CreatedDate = DateTime.Now, Type = Medal.MedalType.Gold },
                 new Medal() { Id = 2, CreatedDate = DateTime.Now, Type = Medal.MedalType.Silver },
                 new Medal() { Id = 3, CreatedDate = DateTime.Now, Type = Medal.MedalType.Bronze });
+        }
+
+        private void LessonsSeed(ModelBuilder modelBuilder)
+        {
+            //modelBuilder.Entity<Lesson>().HasData(
+                //new Lesson() { Id = 1, LessonTitle = Lesson.LessonType.Alphabet, CreatedDate = DateTime.Now });
         }
     }
 }
