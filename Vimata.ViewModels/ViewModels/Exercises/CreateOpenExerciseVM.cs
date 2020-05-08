@@ -23,7 +23,7 @@
         [MinLength(4)]
         public string Lesson { get; set; }
         public bool TextToSpeechContent { get; set; }
-        public bool isHearingExercise { get; set; }
+        public bool IsHearingExercise { get; set; }
 
         public IEnumerable<string> AlternativeAnswers { get; set; }
     }
