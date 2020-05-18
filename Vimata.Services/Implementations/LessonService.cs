@@ -19,6 +19,11 @@
             this.lessonRepository = lessonRepository;
         }
 
+        public async Task<Lesson> GetLessonByName(string lesson)
+        {
+            return await this.lessonRepository.FirstOrDefaultAsync(l => l.Title.ToLower() == lesson.ToLower());
+        }
+
         public async Task<IEnumerable<string>> GetLessons()
         {
             var lessons = await this.lessonRepository.GetAllAsync();

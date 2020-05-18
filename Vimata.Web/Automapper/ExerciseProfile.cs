@@ -8,29 +8,40 @@
     using Vimata.Data.Models;
     using Vimata.ViewModels.ViewModels;
     using Vimata.ViewModels.ViewModels.Exercises;
-    using static Vimata.ViewModels.ViewModels.ExerciseSearchResultVM;
 
     public class ExerciseProfile : Profile
     {
         public ExerciseProfile()
         {
-            CreateMap<ClosedExercise, ClosedExerciseVM>().ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => o.Content)));
-            CreateMap<OpenExercise, OpenExerciseVM>();
-            CreateMap<DragAndDropExercise, DragAndDropExerciseVM>().ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => o.Content)));
-            CreateMap<SpeakingExercise, SpeakingExerciseVM>();
+            CreateMap<Exercise, ClosedExerciseVM>().ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => o.Content)));
+            CreateMap<Exercise, OpenExerciseVM>();
+            CreateMap<Exercise, DragAndDropExerciseVM>().ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => o.Content)));
+            CreateMap<Exercise, SpeakingExerciseVM>();
 
-            CreateMap<ClosedExercise, ExerciseSearchResultVM>().ForMember(dest => dest.Lesson, opt => opt.MapFrom(src => src.Lesson.Title))
+            CreateMap<Exercise, ExerciseSearchResultVM>().ForMember(dest => dest.Lesson, opt => opt.MapFrom(src => src.Lesson.Title))
+                .ForMember(dest => dest.ExerciseId, opt => opt.MapFrom(src => src.Id));
+
+            CreateMap<CreateClosedExerciseVM, Exercise>()
+                .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => new ExerciseOption() { Content = o })))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ExerciseType.Closed))
-                .ForMember(dest => dest.ExerciseId, opt => opt.MapFrom(src => src.Id));
-            CreateMap<OpenExercise, ExerciseSearchResultVM>().ForMember(dest => dest.Lesson, opt => opt.MapFrom(src => src.Lesson.Title))
+                .ReverseMap();
+            CreateMap<CreateOpenExerciseVM, Exercise>()
+                .ForMember(dest => dest.AlternativeAnswers, opt => opt.MapFrom(src => src.AlternativeAnswers.Select(a => new AlternativeAnswer() { Content = a })))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ExerciseType.Open))
-                .ForMember(dest => dest.ExerciseId, opt => opt.MapFrom(src => src.Id));
-            CreateMap<DragAndDropExercise, ExerciseSearchResultVM>().ForMember(dest => dest.Lesson, opt => opt.MapFrom(src => src.Lesson.Title))
+                .ReverseMap();
+            CreateMap<CreateDragAndDropExerciseVM, Exercise>()
+                .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => new ExerciseOption() { Content = o })))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ExerciseType.DragAndDrop))
-                .ForMember(dest => dest.ExerciseId, opt => opt.MapFrom(src => src.Id));
-            CreateMap<SpeakingExercise, ExerciseSearchResultVM>().ForMember(dest => dest.Lesson, opt => opt.MapFrom(src => src.Lesson.Title))
+                .ReverseMap();
+            CreateMap<CreateSpeakingExerciseVM, Exercise>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ExerciseType.Speaking))
-                .ForMember(dest => dest.ExerciseId, opt => opt.MapFrom(src => src.Id));
+                .ReverseMap();
+
+            CreateMap<ExercisesSession, ExercisesSessionVM>()
+                .ForMember(dest => dest.ClosedExercises, opt => opt.MapFrom(src => src.Exercises.Where(e => e.Type == ExerciseType.Closed)))
+                .ForMember(dest => dest.ClosedExercises, opt => opt.MapFrom(src => src.Exercises.Where(e => e.Type == ExerciseType.Open)))
+                .ForMember(dest => dest.ClosedExercises, opt => opt.MapFrom(src => src.Exercises.Where(e => e.Type == ExerciseType.DragAndDrop)))
+                .ForMember(dest => dest.ClosedExercises, opt => opt.MapFrom(src => src.Exercises.Where(e => e.Type == ExerciseType.Speaking)));
         }
     }
 }

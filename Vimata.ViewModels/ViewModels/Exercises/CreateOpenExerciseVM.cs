@@ -20,8 +20,7 @@
         public string CorrectAnswer { get; set; }
 
         [Required]
-        [MinLength(4)]
-        public string Lesson { get; set; }
+        public int LessonId { get; set; }
         public bool TextToSpeechContent { get; set; }
         public bool IsHearingExercise { get; set; }
 

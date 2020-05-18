@@ -13,92 +13,57 @@
     using Vimata.Services.Contracts;
     using Vimata.ViewModels.ViewModels;
     using Vimata.ViewModels.ViewModels.Exercises;
-    using Vimata.Web.Extensions;
 
     [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class ExercisesController : ControllerBase
     {
-        class ExercisesSession
-        {
-            public Guid Id { get; set; }
-            public IList<ClosedExerciseVM> ClosedExercises { get; set; }
-            public IList<OpenExerciseVM> OpenExercises { get; set; }
-            public IList<DragAndDropExerciseVM> DragAndDropExercises { get; set; }
-            public IList<SpeakingExerciseVM> SpeakingExercises { get; set; }
-        }
-
         private readonly IExerciseService exerciseService;
         private readonly IMapper mapper;
-        private List<ExercisesSession> exercisesSessions = new List<ExercisesSession>();
         private readonly IMemoryCache cache;
 
-        public ExercisesController(IExerciseService exerciseService, IMapper mapper, IMemoryCache memoryCache)
+        public ExercisesController(IExerciseService exerciseService,
+            IMapper mapper,
+            IMemoryCache memoryCache)
         {
             this.exerciseService = exerciseService;
             this.mapper = mapper;
             this.cache = memoryCache;
         }
 
+        #region create
         [HttpPost]
         public async Task<IActionResult> CreateClosedExercise(CreateClosedExerciseVM exercise)
         {
-            await this.exerciseService.CreateClosedExercise(exercise);
+            await this.exerciseService.CreateExercise(this.mapper.Map<Exercise>(exercise));
             return Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateOpenExercise(CreateOpenExerciseVM exercise)
         {
-            await this.exerciseService.CreateOpenExercise(exercise);
+            await this.exerciseService.CreateExercise(this.mapper.Map<Exercise>(exercise));
             return Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateDragAndDropExercise(CreateDragAndDropExerciseVM exercise)
         {
-            await this.exerciseService.CreateDragAndDropExercise(exercise);
+            await this.exerciseService.CreateExercise(this.mapper.Map<Exercise>(exercise));
             return Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateSpeakingExercise(CreateSpeakingExerciseVM exercise)
         {
-            await this.exerciseService.CreateSpeakingExercise(exercise);
+            await this.exerciseService.CreateExercise(this.mapper.Map<Exercise>(exercise));
             return Ok();
         }
-
-        [HttpGet("{lesson}")]
-        public async Task<IActionResult> GetClosedExercises(string lesson)
-        {
-            var exercises = await this.exerciseService.GetClosedExercises(lesson);
-            return Ok(this.mapper.Map<IEnumerable<ClosedExercise>, IEnumerable<ClosedExerciseVM>>(exercises));
-        }
-
-        [HttpGet("{lesson}")]
-        public async Task<IActionResult> GetOpenExercises(string lesson)
-        {
-            var exercises = await this.exerciseService.GetOpenExercises(lesson);
-            return Ok(this.mapper.Map<IEnumerable<OpenExercise>, IEnumerable<OpenExerciseVM>>(exercises));
-        }
-
-        [HttpGet("{lesson}")]
-        public async Task<IActionResult> GetDragAndDropExercises(string lesson)
-        {
-            var exercises = await this.exerciseService.GetDragAndDropExercises(lesson);
-            return Ok(this.mapper.Map<IEnumerable<DragAndDropExercise>, IEnumerable<DragAndDropExerciseVM>>(exercises));
-        }
-
-        [HttpGet("{lesson}")]
-        public async Task<IActionResult> GetSpeakingExercises(string lesson)
-        {
-            var exercises = await this.exerciseService.GetSpeakingExercises(lesson);
-            return Ok(this.mapper.Map<IEnumerable<SpeakingExercise>, IEnumerable<SpeakingExerciseVM>>(exercises));
-        }
+        #endregion
 
         [HttpPost]
-        public async Task<IActionResult> CheckClosedExercise([FromBody]CheckExerciseAnswerVM exerciseAnswer)
+        public async Task<IActionResult> CheckExercise(CheckExerciseAnswerVM exerciseAnswer)
         {
             var session = this.cache.Get<ExercisesSession>(exerciseAnswer.SessionId);
             if (session == null)
@@ -106,169 +71,73 @@
                 return BadRequest("Session not found!");
             }
 
-            var exercise = session.ClosedExercises.FirstOrDefault(e => e.Id == exerciseAnswer.ExerciseId);
+            var exercise = session.Exercises.FirstOrDefault(e => e.Id == exerciseAnswer.ExerciseId);
             if (exercise == null)
             {
                 return BadRequest("This exercise is not from this session!");
             }
 
-            session.ClosedExercises.Remove(exercise);
+            session.Exercises.Remove(exercise);
             this.cache.Set(exerciseAnswer.SessionId, session, new MemoryCacheEntryOptions() { SlidingExpiration = TimeSpan.FromMinutes(15) });
 
-            return Ok(await this.exerciseService.CheckClosedExercise(exerciseAnswer));
+            return Ok(await this.exerciseService.CheckExercise(exerciseAnswer));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CheckOpenExercise(CheckExerciseAnswerVM exerciseAnswer)
-        {
-            var session = this.cache.Get<ExercisesSession>(exerciseAnswer.SessionId);
-            if (session == null)
-            {
-                return BadRequest("Session not found!");
-            }
-
-            var exercise = session.OpenExercises.FirstOrDefault(e => e.Id == exerciseAnswer.ExerciseId);
-            if (exercise == null)
-            {
-                return BadRequest("This exercise is not from this session!");
-            }
-
-            session.OpenExercises.Remove(exercise);
-            this.cache.Set(exerciseAnswer.SessionId, session, new MemoryCacheEntryOptions() { SlidingExpiration = TimeSpan.FromMinutes(15) });
-
-            return Ok(await this.exerciseService.CheckOpenExercise(exerciseAnswer));
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CheckDragAndDropExercise(CheckExerciseAnswerVM exerciseAnswer)
-        {
-            var session = this.cache.Get<ExercisesSession>(exerciseAnswer.SessionId);
-            if (session == null)
-            {
-                return BadRequest("Session not found!");
-            }
-
-            var exercise = session.DragAndDropExercises.FirstOrDefault(e => e.Id == exerciseAnswer.ExerciseId);
-            if (exercise == null)
-            {
-                return BadRequest("This exercise is not from this session!");
-            }
-
-            session.DragAndDropExercises.Remove(exercise);
-            this.cache.Set(exerciseAnswer.SessionId, session, new MemoryCacheEntryOptions() { SlidingExpiration = TimeSpan.FromMinutes(15) });
-
-            return Ok(await this.exerciseService.CheckDragAndDropExercise(exerciseAnswer));
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CheckSpeakingExercise(CheckExerciseAnswerVM exerciseAnswer)
-        {
-            var session = this.cache.Get<ExercisesSession>(exerciseAnswer.SessionId);
-            if (session == null)
-            {
-                return BadRequest("Session not found!");
-            }
-
-            var exercise = session.SpeakingExercises.FirstOrDefault(e => e.Id == exerciseAnswer.ExerciseId);
-            if (exercise == null)
-            {
-                return BadRequest("This exercise is not from this session!");
-            }
-
-            session.SpeakingExercises.Remove(exercise);
-            this.cache.Set(exerciseAnswer.SessionId, session, new MemoryCacheEntryOptions() { SlidingExpiration = TimeSpan.FromMinutes(15) });
-
-            return Ok(await this.exerciseService.CheckSpeakingExercise(exerciseAnswer));
-        }
-
+        #region edit
         [HttpGet("{exerciseId}")]
-        public async Task<IActionResult> EditClosed(int exerciseId)
+        public async Task<IActionResult> Edit(int exerciseId)
         {
-            var exercise = await this.exerciseService.GetClosedExerciseForEdit(exerciseId);
+            var exercise = await this.exerciseService.GetById(exerciseId);
 
-            return Ok(exercise);
+            switch (exercise.Type)
+            {
+                case ExerciseType.Closed:
+                    return Ok(this.mapper.Map<CreateClosedExerciseVM>(exercise));
+                case ExerciseType.Open:
+                    return Ok(this.mapper.Map<CreateOpenExerciseVM>(exercise));
+                case ExerciseType.DragAndDrop:
+                    return Ok(this.mapper.Map<CreateDragAndDropExerciseVM>(exercise));
+                default:
+                    return Ok(this.mapper.Map<CreateSpeakingExerciseVM>(exercise));
+            }
         }
 
         [HttpPut("{exerciseId}")]
         public async Task<IActionResult> EditClosedExercise(int exerciseId, CreateClosedExerciseVM exercise)
         {
-            await this.exerciseService.EditClosedExercise(exerciseId, exercise);
+            await this.exerciseService.EditExercise(exerciseId, this.mapper.Map<Exercise>(exercise));
             return Ok();
-        }
-
-        [HttpGet("{exerciseId}")]
-        public async Task<IActionResult> EditOpen(int exerciseId)
-        {
-            var exercise = await this.exerciseService.GetOpenExerciseForEdit(exerciseId);
-
-            return Ok(exercise);
         }
 
         [HttpPut("{exerciseId}")]
         public async Task<IActionResult> EditOpenExercise(int exerciseId, CreateOpenExerciseVM exercise)
         {
-            await this.exerciseService.EditOpenExercise(exerciseId, exercise);
+            await this.exerciseService.EditExercise(exerciseId, this.mapper.Map<Exercise>(exercise));
 
             return Ok();
-        }
-
-        [HttpGet("{exerciseId}")]
-        public async Task<IActionResult> EditDragAndDrop(int exerciseId)
-        {
-            var exercise = await this.exerciseService.GetDragAndDropExerciseForEdit(exerciseId);
-
-            return Ok(exercise);
         }
 
         [HttpPut("{exerciseId}")]
         public async Task<IActionResult> EditDragAndDropExercise(int exerciseId, CreateDragAndDropExerciseVM exercise)
         {
-            await this.exerciseService.EditDragAndDropExercise(exerciseId, exercise);
+            await this.exerciseService.EditExercise(exerciseId, this.mapper.Map<Exercise>(exercise));
 
             return Ok();
-        }
-
-        [HttpGet("{exerciseId}")]
-        public async Task<IActionResult> EditSpeaking(int exerciseId)
-        {
-            var exercise = await this.exerciseService.GetSpeakingExerciseForEdit(exerciseId);
-
-            return Ok(exercise);
         }
 
         [HttpPut("{exerciseId}")]
         public async Task<IActionResult> EditSpeakingExercise(int exerciseId, CreateSpeakingExerciseVM exercise)
         {
-            await this.exerciseService.EditSpeakingExercise(exerciseId, exercise);
+            await this.exerciseService.EditExercise(exerciseId, this.mapper.Map<Exercise>(exercise));
 
             return Ok();
         }
+        #endregion
 
         [HttpDelete("{exerciseId}")]
-        public async Task<IActionResult> RemoveClosed(int exerciseId)
+        public async Task<IActionResult> Remove(int exerciseId)
         {
-            await this.exerciseService.DeleteClosedExercise(exerciseId);
-            return Ok();
-        }
-
-        [HttpDelete("{exerciseId}")]
-        public async Task<IActionResult> RemoveOpen(int exerciseId)
-        {
-            await this.exerciseService.DeleteOpenExercise(exerciseId);
-            return Ok();
-        }
-
-        [HttpDelete("{exerciseId}")]
-        public async Task<IActionResult> RemoveDragAndDrop(int exerciseId)
-        {
-            await this.exerciseService.DeleteDragAndDropExercise(exerciseId);
-            return Ok();
-        }
-
-        [HttpDelete("{exerciseId}")]
-        public async Task<IActionResult> RemoveSpeaking(int exerciseId)
-        {
-            await this.exerciseService.DeleteSpeakingExercise(exerciseId);
+            await this.exerciseService.DeleteExercise(exerciseId);
             return Ok();
         }
 
@@ -278,10 +147,7 @@
             var exercises = await this.exerciseService.SearchBy(criteria);
 
             var result = new List<ExerciseSearchResultVM>();
-            result.AddRange(this.mapper.Map<IEnumerable<ClosedExercise>, IEnumerable<ExerciseSearchResultVM>>(exercises.ClosedExercises));
-            result.AddRange(this.mapper.Map<IEnumerable<OpenExercise>, IEnumerable<ExerciseSearchResultVM>>(exercises.OpenExercises));
-            result.AddRange(this.mapper.Map<IEnumerable<DragAndDropExercise>, IEnumerable<ExerciseSearchResultVM>>(exercises.DragAndDropExercises));
-            result.AddRange(this.mapper.Map<IEnumerable<SpeakingExercise>, IEnumerable<ExerciseSearchResultVM>>(exercises.SpeakingExercises));
+            result.AddRange(this.mapper.Map<IEnumerable<Exercise>, IEnumerable<ExerciseSearchResultVM>>(exercises));
 
             return Ok(result);
         }
@@ -290,23 +156,29 @@
         [AllowAnonymous]
         public async Task<IActionResult> SetSession(string lesson)
         {
-            var closedExercises = await this.exerciseService.GetClosedExercises(lesson);
-            var openExercises = await this.exerciseService.GetOpenExercises(lesson);
-            var dragAndDropExercises = await this.exerciseService.GetDragAndDropExercises(lesson);
-            var speakingExercises = await this.exerciseService.GetSpeakingExercises(lesson);
+            var exercises = await this.exerciseService.GetExercisesByLesson(lesson);
+
+            var closedExercises = exercises.Where(e => e.Type == ExerciseType.Closed);
+            var openExercises = exercises.Where(e => e.Type == ExerciseType.Open);
+            var dragAndDropExercises = exercises.Where(e => e.Type == ExerciseType.DragAndDrop);
+            var speakingExercises = exercises.Where(e => e.Type == ExerciseType.Speaking);
 
             var session = new ExercisesSession()
             {
                 Id = Guid.NewGuid(),
-                ClosedExercises = this.mapper.Map<IEnumerable<ClosedExercise>, IList<ClosedExerciseVM>>(closedExercises),
-                OpenExercises = this.mapper.Map<IEnumerable<OpenExercise>, IList<OpenExerciseVM>>(openExercises),
-                DragAndDropExercises = this.mapper.Map<IEnumerable<DragAndDropExercise>, IList<DragAndDropExerciseVM>>(dragAndDropExercises),
-                SpeakingExercises = this.mapper.Map<IEnumerable<SpeakingExercise>, IList<SpeakingExerciseVM>>(speakingExercises),
+                Exercises = new List<Exercise>(exercises)
             };
 
             //HttpContext.Session.SetObject(session.Id.ToString(), session);
             this.cache.Set(session.Id.ToString(), session, new MemoryCacheEntryOptions() { SlidingExpiration = TimeSpan.FromMinutes(15) });
-            return Ok(session);
+            return Ok(new ExercisesSessionVM()
+            {
+                Id = session.Id,
+                ClosedExercises = this.mapper.Map<IEnumerable<ClosedExerciseVM>>(closedExercises),
+                OpenExercises = this.mapper.Map<IEnumerable<OpenExerciseVM>>(openExercises),
+                DragAndDropExercises = this.mapper.Map<IEnumerable<DragAndDropExerciseVM>>(dragAndDropExercises),
+                SpeakingExercises = this.mapper.Map<IEnumerable<SpeakingExerciseVM>>(speakingExercises) 
+            });
         }
 
         [HttpGet("{id}")]
@@ -315,21 +187,20 @@
         {
             //var session = HttpContext.Session.GetObject<ExercisesSession>(id);
             var session = this.cache.Get<ExercisesSession>(id);
-            return Ok(session);
-        }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetTest()
-        {
-            var exercises = await this.exerciseService.GetSpeakingExercises("азбука");
-            return Ok(exercises.Select(e => new SpeakingExerciseVM()
+            var closedExercises = session.Exercises.Where(e => e.Type == ExerciseType.Closed);
+            var openExercises = session.Exercises.Where(e => e.Type == ExerciseType.Open);
+            var dragAndDropExercises = session.Exercises.Where(e => e.Type == ExerciseType.DragAndDrop);
+            var speakingExercises = session.Exercises.Where(e => e.Type == ExerciseType.Speaking);
+
+            return Ok(new ExercisesSessionVM()
             {
-                Id = e.Id,
-                Content = e.Content,
-                Description = e.Description,
-                IsHearingExercise = e.IsHearingExercise
-            }).FirstOrDefault());
+                Id = session.Id,
+                ClosedExercises = this.mapper.Map<IEnumerable<ClosedExerciseVM>>(closedExercises),
+                OpenExercises = this.mapper.Map<IEnumerable<OpenExerciseVM>>(openExercises),
+                DragAndDropExercises = this.mapper.Map<IEnumerable<DragAndDropExerciseVM>>(dragAndDropExercises),
+                SpeakingExercises = this.mapper.Map<IEnumerable<SpeakingExerciseVM>>(speakingExercises)
+            });
         }
     }
 }

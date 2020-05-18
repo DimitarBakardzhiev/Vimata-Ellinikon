@@ -16,10 +16,9 @@
         public DbSet<Medal> Medals { get; set; }
         public DbSet<MedalUserLesson> MedalsUsersLessons { get; set; }
 
-        public DbSet<ClosedExercise> ClosedExercises { get; set; }
-        public DbSet<DragAndDropExercise> DragAndDropExercises { get; set; }
-        public DbSet<OpenExercise> OpenExercises { get; set; }
-        public DbSet<SpeakingExercise> SpeakingExercises { get; set; }
+        public DbSet<Exercise> Exercises { get; set; }
+        public DbSet<ExerciseOption> ExerciseOptions { get; set; }
+        public DbSet<AlternativeAnswer> AlternativeAnswers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -51,20 +50,10 @@
                 .WithMany(u => u.MedalLesson)
                 .HasForeignKey(u => u.UserId);
 
-            modelBuilder.Entity<ClosedExercise>()
+            modelBuilder.Entity<Exercise>()
                 .HasMany(e => e.Options)
                 .WithOne(o => o.Exercise)
                 .HasForeignKey(o => o.ExerciseId);
-
-            modelBuilder.Entity<DragAndDropExercise>()
-                .HasMany(e => e.Options)
-                .WithOne(o => o.Exercise)
-                .HasForeignKey(o => o.ExerciseId);
-
-            modelBuilder.Entity<OpenExercise>()
-                .HasMany(e => e.AlternativeAnswers)
-                .WithOne(a => a.Exercise)
-                .HasForeignKey(a => a.ExerciseId);
                 
             base.OnModelCreating(modelBuilder);
         }

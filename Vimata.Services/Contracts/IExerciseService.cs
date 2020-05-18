@@ -10,36 +10,18 @@
 
     public interface IExerciseService
     {
-        Task CreateClosedExercise(CreateClosedExerciseVM exercise);
-        Task CreateOpenExercise(CreateOpenExerciseVM exercise);
-        Task CreateDragAndDropExercise(CreateDragAndDropExerciseVM exercise);
-        Task CreateSpeakingExercise(CreateSpeakingExerciseVM exercise);
+        Task CreateExercise(Exercise exercise);
+        
+        Task<CheckAnswerVM> CheckExercise(CheckExerciseAnswerVM exerciseAnswer);
 
-        Task<IEnumerable<ClosedExercise>> GetClosedExercises(string lesson);
-        Task<IEnumerable<OpenExercise>> GetOpenExercises(string lesson);
-        Task<IEnumerable<DragAndDropExercise>> GetDragAndDropExercises(string lesson);
-        Task<IEnumerable<SpeakingExercise>> GetSpeakingExercises(string lesson);
+        Task<IEnumerable<Exercise>> GetExercisesByLesson(string lesson);
 
-        Task<CheckAnswerVM> CheckClosedExercise(CheckExerciseAnswerVM exerciseAnswer);
-        Task<CheckAnswerVM> CheckOpenExercise(CheckExerciseAnswerVM exerciseAnswer);
-        Task<CheckAnswerVM> CheckDragAndDropExercise(CheckExerciseAnswerVM exerciseAnswer);
-        Task<CheckAnswerVM> CheckSpeakingExercise(CheckExerciseAnswerVM exerciseAnswer);
+        Task<Exercise> GetById(int id);
 
-        Task<CreateClosedExerciseVM> GetClosedExerciseForEdit(int id);
-        Task<CreateOpenExerciseVM> GetOpenExerciseForEdit(int id);
-        Task<CreateDragAndDropExerciseVM> GetDragAndDropExerciseForEdit(int id);
-        Task<CreateSpeakingExerciseVM> GetSpeakingExerciseForEdit(int id);
+        Task EditExercise(int id, Exercise exercise);
 
-        Task EditClosedExercise(int id, CreateClosedExerciseVM exercise);
-        Task EditOpenExercise(int id, CreateOpenExerciseVM exercise);
-        Task EditDragAndDropExercise(int id, CreateDragAndDropExerciseVM exercise);
-        Task EditSpeakingExercise(int id, CreateSpeakingExerciseVM exercise);
+        Task DeleteExercise(int id);
 
-        Task DeleteClosedExercise(int id);
-        Task DeleteOpenExercise(int id);
-        Task DeleteDragAndDropExercise(int id);
-        Task DeleteSpeakingExercise(int id);
-
-        Task<ExerciseSearchResult> SearchBy(ExerciseSearchCriteria criteria);
+        Task<IEnumerable<Exercise>> SearchBy(ExerciseSearchCriteria criteria);
     }
 }
