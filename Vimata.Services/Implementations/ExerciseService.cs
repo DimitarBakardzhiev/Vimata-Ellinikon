@@ -122,7 +122,7 @@
 
         public async Task<CheckAnswerVM> CheckOpenExercise(CheckExerciseAnswerVM exerciseAnswer)
         {
-            var exercise = await this.openExercisesReporitory.GetByIdAsync(exerciseAnswer.ExerciseId);
+            var exercise = await this.openExercisesReporitory.GetWhere(e => e.Id == exerciseAnswer.ExerciseId).Include(e => e.AlternativeAnswers).FirstOrDefaultAsync();
             bool isCorrect = exercise.CorrectAnswer.ToLower() == exerciseAnswer.Answer.ToLower();
 
             if (!isCorrect && exercise.AlternativeAnswers.Count > 0)
@@ -312,90 +312,42 @@
         }
         #endregion
 
-        public async Task<IEnumerable<ExerciseSearchResultVM>> GetExercisesByLesson(string lesson)
+        public async Task<ExerciseSearchResult> SearchBy(ExerciseSearchCriteria criteria)
         {
-            var exercises = new List<ExerciseSearchResultVM>();
-            exercises.AddRange(await this.closedExercisesReporitory
-                .GetWhere(e => e.Lesson.Title.ToLower() == lesson.ToLower())
-                .Select(e => new ExerciseSearchResultVM { Content = e.Content, Description = e.Description, ExerciseId = e.Id, Type = ExerciseSearchResultVM.ExerciseType.Closed })
-                .ToArrayAsync());
+            var exercises = new ExerciseSearchResult();
 
-            exercises.AddRange(await this.openExercisesReporitory
-                .GetWhere(e => e.Lesson.Title.ToLower() == lesson.ToLower())
-                .Select(e => new ExerciseSearchResultVM { Content = e.Content, Description = e.Description, ExerciseId = e.Id, Type = ExerciseSearchResultVM.ExerciseType.Open })
-                .ToArrayAsync());
-
-            exercises.AddRange(await this.dragAndDropExercisesReporitory
-                .GetWhere(e => e.Lesson.Title.ToLower() == lesson.ToLower())
-                .Select(e => new ExerciseSearchResultVM { Content = e.Content, Description = e.Description, ExerciseId = e.Id, Type = ExerciseSearchResultVM.ExerciseType.DragAndDrop })
-                .ToArrayAsync());
-
-            exercises.AddRange(await this.speakingExercisesReporitory
-                .GetWhere(e => e.Lesson.Title.ToLower() == lesson.ToLower())
-                .Select(e => new ExerciseSearchResultVM { Content = e.Content, Description = e.Description, ExerciseId = e.Id, Type = ExerciseSearchResultVM.ExerciseType.Speaking })
-                .ToArrayAsync());
-
-            return exercises;
-        }
-
-        public async Task<IEnumerable<ExerciseSearchResultVM>> SearchBy(ExerciseSearchCriteria criteria)
-        {
-            var exercises = new List<ExerciseSearchResultVM>();
-
-            exercises.AddRange(await this.closedExercisesReporitory
+            var closedExercises = await this.closedExercisesReporitory
                 .GetWhere(e => string.IsNullOrEmpty(criteria.Lesson) || e.Lesson.Title.ToLower() == criteria.Lesson.ToLower())
                 .Where(e => string.IsNullOrEmpty(criteria.Description) || e.Description.ToLower().Contains(criteria.Description.ToLower()))
                 .Where(e => string.IsNullOrEmpty(criteria.Content) || e.Content.ToLower().Contains(criteria.Content.ToLower()))
-                .Select(e => new ExerciseSearchResultVM
-                { 
-                    ExerciseId = e.Id,
-                    Description = e.Description,
-                    Content = e.Content,
-                    Type = ExerciseSearchResultVM.ExerciseType.Closed,
-                    Lesson = e.Lesson.Title })
-                .ToArrayAsync());
-
-            exercises.AddRange(await this.openExercisesReporitory
+                .Include(e => e.Lesson)
+                .ToArrayAsync();
+            
+            var openExercises = await this.openExercisesReporitory
                 .GetWhere(e => string.IsNullOrEmpty(criteria.Lesson) || e.Lesson.Title.ToLower() == criteria.Lesson.ToLower())
                 .Where(e => string.IsNullOrEmpty(criteria.Description) || e.Description.ToLower().Contains(criteria.Description.ToLower()))
                 .Where(e => string.IsNullOrEmpty(criteria.Content) || e.Content.ToLower().Contains(criteria.Content.ToLower()))
-                .Select(e => new ExerciseSearchResultVM
-                {
-                    ExerciseId = e.Id,
-                    Description = e.Description,
-                    Content = e.Content,
-                    Type = ExerciseSearchResultVM.ExerciseType.Open,
-                    Lesson = e.Lesson.Title
-                })
-                .ToArrayAsync());
+                .Include(e => e.Lesson)
+                .ToArrayAsync();
 
-            exercises.AddRange(await this.dragAndDropExercisesReporitory
+            var dragAndDropExercises = await this.dragAndDropExercisesReporitory
                 .GetWhere(e => string.IsNullOrEmpty(criteria.Lesson) || e.Lesson.Title.ToLower() == criteria.Lesson.ToLower())
                 .Where(e => string.IsNullOrEmpty(criteria.Description) || e.Description.ToLower().Contains(criteria.Description.ToLower()))
                 .Where(e => string.IsNullOrEmpty(criteria.Content) || e.Content.ToLower().Contains(criteria.Content.ToLower()))
-                .Select(e => new ExerciseSearchResultVM
-                {
-                    ExerciseId = e.Id,
-                    Description = e.Description,
-                    Content = e.Content,
-                    Type = ExerciseSearchResultVM.ExerciseType.DragAndDrop,
-                    Lesson = e.Lesson.Title
-                })
-                .ToArrayAsync());
+                .Include(e => e.Lesson)
+                .ToArrayAsync();
 
-            exercises.AddRange(await this.speakingExercisesReporitory
+            var speakingExercises = await this.speakingExercisesReporitory
                 .GetWhere(e => string.IsNullOrEmpty(criteria.Lesson) || e.Lesson.Title.ToLower() == criteria.Lesson.ToLower())
                 .Where(e => string.IsNullOrEmpty(criteria.Description) || e.Description.ToLower().Contains(criteria.Description.ToLower()))
                 .Where(e => string.IsNullOrEmpty(criteria.Content) || e.Content.ToLower().Contains(criteria.Content.ToLower()))
-                .Select(e => new ExerciseSearchResultVM
-                {
-                    ExerciseId = e.Id,
-                    Description = e.Description,
-                    Content = e.Content,
-                    Type = ExerciseSearchResultVM.ExerciseType.Speaking,
-                    Lesson = e.Lesson.Title
-                })
-                .ToArrayAsync());
+                .Include(e => e.Lesson)
+                .ToArrayAsync();
+
+            exercises.ClosedExercises = closedExercises;
+            exercises.OpenExercises = openExercises;
+            exercises.DragAndDropExercises = dragAndDropExercises;
+            exercises.SpeakingExercises = speakingExercises;
 
             return exercises;
         }

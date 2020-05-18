@@ -13,5 +13,7 @@
         [Required]
         [MinLength(1)]
         public string Answer { get; set; }
+
+        public string SessionId { get; set; }
     }
 }

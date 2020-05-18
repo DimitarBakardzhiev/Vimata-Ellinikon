@@ -40,7 +40,6 @@
         Task DeleteDragAndDropExercise(int id);
         Task DeleteSpeakingExercise(int id);
 
-        Task<IEnumerable<ExerciseSearchResultVM>> GetExercisesByLesson(string lesson);
-        Task<IEnumerable<ExerciseSearchResultVM>> SearchBy(ExerciseSearchCriteria criteria);
+        Task<ExerciseSearchResult> SearchBy(ExerciseSearchCriteria criteria);
     }
 }

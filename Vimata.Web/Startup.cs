@@ -19,6 +19,7 @@ using Vimata.Data;
 using Vimata.Data.Repositories;
 using Vimata.Services.Contracts;
 using Vimata.Services.Implementations;
+using AutoMapper;
 
 namespace Vimata.Web
 {
@@ -35,6 +36,7 @@ namespace Vimata.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+            services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
 
             var connection = "Server=.;Database=Vimata-Ellinikon;Trusted_Connection=True;ConnectRetryCount=0";
@@ -64,6 +66,16 @@ namespace Vimata.Web
                     ValidateAudience = false
                 };
             });
+
+            //services.AddDistributedMemoryCache();
+            services.AddMemoryCache();
+            //services.AddSession(options =>
+            //{
+            //    options.IdleTimeout = TimeSpan.FromMinutes(30);
+            //    options.Cookie.HttpOnly = true;
+            //    options.Cookie.IsEssential = true;
+            //    options.Cookie.Name = ".Vimata";
+            //});
 
             // configure DI for application services
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -97,6 +109,7 @@ namespace Vimata.Web
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            //app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
