@@ -33,6 +33,7 @@
         }
 
         #region create
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost]
         public async Task<IActionResult> CreateClosedExercise(CreateClosedExerciseVM exercise)
         {
@@ -40,6 +41,7 @@
             return Ok();
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost]
         public async Task<IActionResult> CreateOpenExercise(CreateOpenExerciseVM exercise)
         {
@@ -47,6 +49,7 @@
             return Ok();
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost]
         public async Task<IActionResult> CreateDragAndDropExercise(CreateDragAndDropExerciseVM exercise)
         {
@@ -54,6 +57,7 @@
             return Ok();
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost]
         public async Task<IActionResult> CreateSpeakingExercise(CreateSpeakingExerciseVM exercise)
         {
@@ -78,12 +82,18 @@
             }
 
             session.Exercises.Remove(exercise);
-            this.cache.Set(exerciseAnswer.SessionId, session, new MemoryCacheEntryOptions() { SlidingExpiration = TimeSpan.FromMinutes(15) });
+            var result = await this.exerciseService.CheckExercise(exerciseAnswer);
+            if (result.IsCorrect)
+            {
+                session.AnsweredCorrectly++;
+            }
 
-            return Ok(await this.exerciseService.CheckExercise(exerciseAnswer));
+            this.cache.Set(exerciseAnswer.SessionId, session, new MemoryCacheEntryOptions() { SlidingExpiration = TimeSpan.FromMinutes(15) });
+            return Ok(result);
         }
 
         #region edit
+        [Authorize(Roles = Roles.Admin)]
         [HttpGet("{exerciseId}")]
         public async Task<IActionResult> Edit(int exerciseId)
         {
@@ -102,6 +112,7 @@
             }
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{exerciseId}")]
         public async Task<IActionResult> EditClosedExercise(int exerciseId, CreateClosedExerciseVM exercise)
         {
@@ -109,6 +120,7 @@
             return Ok();
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{exerciseId}")]
         public async Task<IActionResult> EditOpenExercise(int exerciseId, CreateOpenExerciseVM exercise)
         {
@@ -117,6 +129,7 @@
             return Ok();
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{exerciseId}")]
         public async Task<IActionResult> EditDragAndDropExercise(int exerciseId, CreateDragAndDropExerciseVM exercise)
         {
@@ -125,6 +138,7 @@
             return Ok();
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{exerciseId}")]
         public async Task<IActionResult> EditSpeakingExercise(int exerciseId, CreateSpeakingExerciseVM exercise)
         {
@@ -134,6 +148,7 @@
         }
         #endregion
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpDelete("{exerciseId}")]
         public async Task<IActionResult> Remove(int exerciseId)
         {
@@ -166,7 +181,10 @@
             var session = new ExercisesSession()
             {
                 Id = Guid.NewGuid(),
-                Exercises = new List<Exercise>(exercises)
+                Exercises = new List<Exercise>(exercises),
+                InitialExercisesCount = exercises.Count(),
+                AnsweredCorrectly = 0,
+                Lesson = lesson
             };
 
             //HttpContext.Session.SetObject(session.Id.ToString(), session);
@@ -185,8 +203,12 @@
         [AllowAnonymous]
         public IActionResult GetSession(string id)
         {
-            //var session = HttpContext.Session.GetObject<ExercisesSession>(id);
             var session = this.cache.Get<ExercisesSession>(id);
+
+            if (session == null)
+            {
+                return NotFound();
+            }
 
             var closedExercises = session.Exercises.Where(e => e.Type == ExerciseType.Closed);
             var openExercises = session.Exercises.Where(e => e.Type == ExerciseType.Open);
@@ -201,6 +223,28 @@
                 DragAndDropExercises = this.mapper.Map<IEnumerable<DragAndDropExerciseVM>>(dragAndDropExercises),
                 SpeakingExercises = this.mapper.Map<IEnumerable<SpeakingExerciseVM>>(speakingExercises)
             });
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> EndSession(string id)
+        {
+            var session = this.cache.Get<ExercisesSession>(id);
+
+            if (session == null)
+            {
+                return NotFound();
+            }
+
+            if (session.Exercises.Count > 0)
+            {
+                return BadRequest("Exercises session not finished yet!");
+            }
+
+            int userId = int.Parse(User.Identity.Name);
+            var medal = await this.exerciseService.ProcessResult(session, userId);
+            this.cache.Remove(id);
+
+            return Ok(medal);
         }
     }
 }

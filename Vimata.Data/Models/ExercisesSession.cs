@@ -8,5 +8,8 @@
     {
         public Guid Id { get; set; }
         public IList<Exercise> Exercises { get; set; }
+        public int InitialExercisesCount { get; set; }
+        public int AnsweredCorrectly { get; set; }
+        public string Lesson { get; set; }
     }
 }

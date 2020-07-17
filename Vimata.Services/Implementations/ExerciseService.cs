@@ -16,12 +16,18 @@
     {
         private readonly IRepository<Exercise> exercisesReporitory;
         private readonly IRepository<Lesson> lessonRepository;
+        private readonly IRepository<Medal> medalRepository;
+        private readonly IRepository<User> userRepository;
 
         public ExerciseService(IRepository<Exercise> exercisesReporitory,
-            IRepository<Lesson> lessonRepository)
+            IRepository<Lesson> lessonRepository,
+            IRepository<Medal> medalRepository,
+            IRepository<User> userRepository)
         {
             this.exercisesReporitory = exercisesReporitory;
             this.lessonRepository = lessonRepository;
+            this.medalRepository = medalRepository;
+            this.userRepository = userRepository;
         }
 
         #region CreateExercises
@@ -102,7 +108,7 @@
         public async Task<IEnumerable<Exercise>> SearchBy(ExerciseSearchCriteria criteria)
         {
             var exercises = await this.exercisesReporitory
-                .GetWhere(e => string.IsNullOrEmpty(criteria.Lesson) || e.Lesson.Title.ToLower() == criteria.Lesson.ToLower())
+                .GetWhere(e => criteria.LessonId == 0 || e.LessonId == criteria.LessonId)
                 .Where(e => string.IsNullOrEmpty(criteria.Description) || e.Description.ToLower().Contains(criteria.Description.ToLower()))
                 .Where(e => string.IsNullOrEmpty(criteria.Content) || e.Content.ToLower().Contains(criteria.Content.ToLower()))
                 .Include(e => e.Lesson)
@@ -122,6 +128,78 @@
                 .ToArrayAsync();
 
             return exercises;
+        }
+
+        public async Task<MedalType> ProcessResult(ExercisesSession session, int userId)
+        {
+            double result = (double)session.AnsweredCorrectly / (double)session.InitialExercisesCount;
+
+            var lesson = await this.lessonRepository.FirstOrDefaultAsync(l => l.Title.ToLower() == session.Lesson.ToLower());
+            var user = await this.userRepository.GetWhere(u => u.Id == userId).Include(u => u.MedalLesson).ThenInclude(m => m.Medal).FirstOrDefaultAsync();
+
+            if (result > 0.5 && result < 0.75)
+            {
+                if (!this.HasThisMedalOrBetter(user, MedalType.Bronze, lesson))
+                {
+                    await this.AwardMedal(user, MedalType.Bronze, lesson);
+                }
+
+                return MedalType.Bronze;
+            }
+            else if (result >= 0.75 && result < 1)
+            {
+                if (!this.HasThisMedalOrBetter(user, MedalType.Silver, lesson))
+                {
+                    await this.AwardMedal(user, MedalType.Silver, lesson);
+                }
+                
+                return MedalType.Silver;
+            }
+            else if (result == 1)
+            {
+                if (!this.HasThisMedalOrBetter(user, MedalType.Gold, lesson))
+                {
+                    await this.AwardMedal(user, MedalType.Gold, lesson);
+                }
+
+                return MedalType.Gold;
+            }
+            else
+            {
+                return MedalType.Failed;
+            }
+        }
+
+        private bool HasThisMedalOrBetter(User user, MedalType medal, Lesson lesson)
+        {
+            var medalForLesson = user.MedalLesson.FirstOrDefault(m => m.Lesson == lesson);
+            if (medalForLesson == null)
+            {
+                return false;
+            }
+
+            if (medalForLesson.Medal.Type <= medal)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private async Task AwardMedal(User user, MedalType medalType, Lesson lesson)
+        {
+            var medal = await this.medalRepository.GetWhere(m => m.Type == medalType).Include(m => m.UserLesson).FirstOrDefaultAsync();
+            var oldMedalForLesson = user.MedalLesson.FirstOrDefault(m => m.Lesson == lesson);
+
+            if (oldMedalForLesson != null)
+            {
+                user.MedalLesson.Remove(oldMedalForLesson);
+            }
+
+            user.MedalLesson.Add(new MedalUserLesson() { Lesson = lesson, Medal = medal });
+            await this.userRepository.UpdateAsync(user);
         }
     }
 }

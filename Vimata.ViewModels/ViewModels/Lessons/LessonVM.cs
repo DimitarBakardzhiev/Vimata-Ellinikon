@@ -1,11 +1,8 @@
 ﻿namespace Vimata.ViewModels.ViewModels.Lessons
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-
     public class LessonVM
     {
+        public int Id { get; set; }
         public string Title { get; set; }
     }
 }

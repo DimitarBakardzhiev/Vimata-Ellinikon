@@ -9,7 +9,8 @@
 
     public interface ILessonService
     {
-        Task<IEnumerable<string>> GetLessons();
+        Task<IEnumerable<Lesson>> GetLessons();
         Task<Lesson> GetLessonByName(string lesson);
+        Task<IList<LessonMedalVM>> GetMedalsByUser(int userId);
     }
 }

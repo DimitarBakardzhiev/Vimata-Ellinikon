@@ -6,7 +6,7 @@
 
     public class ExerciseSearchCriteria
     {
-        public string Lesson { get; set; }
+        public int LessonId { get; set; }
         public string Description { get; set; }
         public string Content { get; set; }
 

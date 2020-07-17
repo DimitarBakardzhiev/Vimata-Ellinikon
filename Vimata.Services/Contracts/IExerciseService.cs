@@ -7,6 +7,7 @@
     using Vimata.Data.Models;
     using Vimata.ViewModels.ViewModels;
     using Vimata.ViewModels.ViewModels.Exercises;
+    using Vimata.ViewModels.ViewModels.Lessons;
 
     public interface IExerciseService
     {
@@ -23,5 +24,7 @@
         Task DeleteExercise(int id);
 
         Task<IEnumerable<Exercise>> SearchBy(ExerciseSearchCriteria criteria);
+
+        Task<MedalType> ProcessResult(ExercisesSession session, int userId);
     }
 }

@@ -24,15 +24,18 @@
             CreateMap<CreateClosedExerciseVM, Exercise>()
                 .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => new ExerciseOption() { Content = o })))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ExerciseType.Closed))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => o.Content)));
             CreateMap<CreateOpenExerciseVM, Exercise>()
                 .ForMember(dest => dest.AlternativeAnswers, opt => opt.MapFrom(src => src.AlternativeAnswers.Select(a => new AlternativeAnswer() { Content = a })))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ExerciseType.Open))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.AlternativeAnswers, opt => opt.MapFrom(src => src.AlternativeAnswers.Select(a => a.Content)));
             CreateMap<CreateDragAndDropExerciseVM, Exercise>()
                 .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => new ExerciseOption() { Content = o })))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ExerciseType.DragAndDrop))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => o.Content)));
             CreateMap<CreateSpeakingExerciseVM, Exercise>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ExerciseType.Speaking))
                 .ReverseMap();

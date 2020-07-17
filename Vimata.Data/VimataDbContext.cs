@@ -61,9 +61,9 @@
         private void MedalsSeed(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Medal>().HasData(
-                new Medal() { Id = 1, CreatedDate = DateTime.Now, Type = Medal.MedalType.Gold },
-                new Medal() { Id = 2, CreatedDate = DateTime.Now, Type = Medal.MedalType.Silver },
-                new Medal() { Id = 3, CreatedDate = DateTime.Now, Type = Medal.MedalType.Bronze });
+                new Medal() { Id = 1, CreatedDate = DateTime.Now, Type = MedalType.Gold },
+                new Medal() { Id = 2, CreatedDate = DateTime.Now, Type = MedalType.Silver },
+                new Medal() { Id = 3, CreatedDate = DateTime.Now, Type = MedalType.Bronze });
         }
 
         private void LessonsSeed(ModelBuilder modelBuilder)
