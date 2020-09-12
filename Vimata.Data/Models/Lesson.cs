@@ -9,5 +9,7 @@
         public string Title { get; set; }
 
         public List<Exercise> Exercises { get; set; }
+
+        public List<Medal> Medals { get; set; }
     }
 }

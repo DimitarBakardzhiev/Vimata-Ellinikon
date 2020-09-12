@@ -14,6 +14,7 @@
     using Vimata.ViewModels.Users;
     using Vimata.Data.Repositories;
     using System.Threading.Tasks;
+    using Vimata.ViewModels.ViewModels.Users;
 
     public class UserService : IUserService
     {
@@ -26,13 +27,8 @@
             this.usersRepository = usersRepository;
         }
 
-        public async Task<User> AuthenticateAsync(string email, string password)
+        public async Task<AuthenticationVM> AuthenticateAsync(string email, string password)
         {
-            if (email == null || password == null)
-            {
-                return null;
-            }
-
             var user = await usersRepository.FirstOrDefaultAsync(u => u.Email == email && u.Password == Hasher.GetHashString(password));
 
             if (user == null)
@@ -40,10 +36,16 @@
                 return null;
             }
 
-            user.Token = GetJwtToken(user);
-            user.Password = null;
+            var token = GetJwtToken(user);
 
-            return user;
+            return new AuthenticationVM
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Username = user.Username,
+                Token = token
+            };
         }
 
         private string GetJwtToken(User user)
@@ -82,11 +84,6 @@
 
             await usersRepository.AddAsync(user);
             return user;
-        }
-
-        public async Task<bool> IsUsedEmail(string email)
-        {
-            return await usersRepository.CountWhereAsync(u => u.Email == email) > 0;
         }
     }
 }

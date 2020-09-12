@@ -16,9 +16,7 @@ namespace Vimata.Data.Models
 
         public string Password { get; set; }
 
-        public string Token { get; set; }
-
-        public List<MedalUserLesson> MedalLesson { get; set; }
+        public List<Medal> Medals { get; set; }
 
         public string Role { get; set; }
     }

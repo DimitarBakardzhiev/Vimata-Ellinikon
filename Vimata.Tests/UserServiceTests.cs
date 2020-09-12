@@ -58,8 +58,6 @@
         [InlineData("test@abv.bg", "gG1@3561fa", true)]
         [InlineData("faef", "gG1@3561fa", false)]
         [InlineData("test@abv.bg", "1234", false)]
-        [InlineData("test@abv,bg", null, false)]
-        [InlineData(null, null, false)]
         public async Task AuthenticateExistingUserWithCorrectEmailAndPasswordAndRejectWrongInput(string email, string password, bool shouldAuthenticate)
         {
             // Arrange
@@ -70,7 +68,8 @@
             {
                 Email = "test@abv.bg",
                 Username = "test@abv.bg",
-                Password = Hasher.GetHashString("gG1@3561fa")
+                Password = Hasher.GetHashString("gG1@3561fa"),
+                Role = Roles.User
             };
 
             db.Users.Add(user);
@@ -85,30 +84,7 @@
             if (authUser != null)
             {
                 Assert.NotNull(authUser.Token);
-                Assert.Null(authUser.Password);
             }
-        }
-
-        [Theory]
-        [InlineData("", false)]
-        [InlineData("asd", true)]
-        [InlineData(null, false)]
-        [InlineData("arght", false)]
-        public async Task IsUsedEmailReturnsCorrectValues(string email, bool exists)
-        {
-            // Arrange
-            var db = GetInMemoryDb();
-            var usersRepo = new Repository<User>(db);
-            var userService = new UserService(appSettings, usersRepo);
-
-            db.Users.AddRange(new User { Email = "asd" }, new User { Email = "pesho" }, new User { Email = "gosho" });
-            db.SaveChanges();
-
-            // Act
-            bool result = await userService.IsUsedEmail(email);
-
-            // Assert
-            Assert.Equal(exists, result);
         }
 
         [Fact]

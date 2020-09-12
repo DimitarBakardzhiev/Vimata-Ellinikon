@@ -14,12 +14,12 @@
     public class LessonService : ILessonService
     {
         private readonly IRepository<Lesson> lessonRepository;
-        private readonly IRepository<User> userRepository;
+        private readonly IRepository<Medal> medalReporsitory;
 
-        public LessonService(IRepository<Lesson> lessonRepository, IRepository<User> userRepository)
+        public LessonService(IRepository<Lesson> lessonRepository, IRepository<Medal> medalRepository)
         {
             this.lessonRepository = lessonRepository;
-            this.userRepository = userRepository;
+            this.medalReporsitory = medalRepository;
         }
 
         public async Task<Lesson> GetLessonByName(string lesson)
@@ -36,16 +36,7 @@
 
         public async Task<IList<LessonMedalVM>> GetMedalsByUser(int userId)
         {
-            var user = await this.userRepository.GetWhere(u => u.Id == userId)
-                .Include(u => u.MedalLesson).ThenInclude(ml => ml.Lesson)
-                .Include(u => u.MedalLesson).ThenInclude(ml => ml.Medal)
-                .FirstOrDefaultAsync();
-
-            var medals = new List<LessonMedalVM>();
-            foreach (var item in user.MedalLesson)
-            {
-                medals.Add(new LessonMedalVM() { Lesson = item.Lesson.Title, Medal = item.Medal.Type });
-            }
+            var medals = await this.medalReporsitory.GetWhere(m => m.UserId == userId).Select(m => new LessonMedalVM { Lesson = m.Lesson.Title, Medal = m.Type }).ToListAsync();
 
             return medals;
         }

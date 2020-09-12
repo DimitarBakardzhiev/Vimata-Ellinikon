@@ -1,11 +1,13 @@
 ﻿namespace Vimata.Data.Models
 {
-    using System.Collections.Generic;
-
     public class Medal : BaseEntity
     {
         public MedalType Type { get; set; }
 
-        public List<MedalUserLesson> UserLesson { get; set; }
+        public int LessonId { get; set; }
+        public Lesson Lesson { get; set; }
+
+        public int UserId { get; set; }
+        public User User { get; set; }
     }
 }

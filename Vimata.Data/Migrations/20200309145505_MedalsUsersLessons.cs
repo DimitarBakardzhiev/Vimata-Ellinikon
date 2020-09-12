@@ -38,21 +38,6 @@ namespace Vimata.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "Medals",
-                columns: new[] { "Id", "CreatedDate", "ModifiedDate", "Type" },
-                values: new object[] { 1, new DateTime(2020, 3, 9, 16, 55, 5, 163, DateTimeKind.Local).AddTicks(2358), null, "Gold" });
-
-            migrationBuilder.InsertData(
-                table: "Medals",
-                columns: new[] { "Id", "CreatedDate", "ModifiedDate", "Type" },
-                values: new object[] { 2, new DateTime(2020, 3, 9, 16, 55, 5, 165, DateTimeKind.Local).AddTicks(1508), null, "Silver" });
-
-            migrationBuilder.InsertData(
-                table: "Medals",
-                columns: new[] { "Id", "CreatedDate", "ModifiedDate", "Type" },
-                values: new object[] { 3, new DateTime(2020, 3, 9, 16, 55, 5, 165, DateTimeKind.Local).AddTicks(1547), null, "Bronze" });
-
             migrationBuilder.CreateIndex(
                 name: "IX_MedalsUsersLessons_LessonId",
                 table: "MedalsUsersLessons",
@@ -68,21 +53,6 @@ namespace Vimata.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "MedalsUsersLessons");
-
-            migrationBuilder.DeleteData(
-                table: "Medals",
-                keyColumn: "Id",
-                keyValue: 1);
-
-            migrationBuilder.DeleteData(
-                table: "Medals",
-                keyColumn: "Id",
-                keyValue: 2);
-
-            migrationBuilder.DeleteData(
-                table: "Medals",
-                keyColumn: "Id",
-                keyValue: 3);
         }
     }
 }

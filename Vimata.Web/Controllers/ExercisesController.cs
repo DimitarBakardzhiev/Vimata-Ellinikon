@@ -168,7 +168,6 @@
         }
 
         [HttpGet("{lesson}")]
-        [AllowAnonymous]
         public async Task<IActionResult> SetSession(string lesson)
         {
             var exercises = await this.exerciseService.GetExercisesByLesson(lesson);
@@ -200,7 +199,6 @@
         }
 
         [HttpGet("{id}")]
-        [AllowAnonymous]
         public IActionResult GetSession(string id)
         {
             var session = this.cache.Get<ExercisesSession>(id);

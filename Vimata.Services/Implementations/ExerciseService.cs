@@ -135,7 +135,7 @@
             double result = (double)session.AnsweredCorrectly / (double)session.InitialExercisesCount;
 
             var lesson = await this.lessonRepository.FirstOrDefaultAsync(l => l.Title.ToLower() == session.Lesson.ToLower());
-            var user = await this.userRepository.GetWhere(u => u.Id == userId).Include(u => u.MedalLesson).ThenInclude(m => m.Medal).FirstOrDefaultAsync();
+            var user = await this.userRepository.GetWhere(u => u.Id == userId).Include(u => u.Medals).FirstOrDefaultAsync();
 
             if (result > 0.5 && result < 0.75)
             {
@@ -172,13 +172,13 @@
 
         private bool HasThisMedalOrBetter(User user, MedalType medal, Lesson lesson)
         {
-            var medalForLesson = user.MedalLesson.FirstOrDefault(m => m.Lesson == lesson);
+            var medalForLesson = user.Medals.FirstOrDefault(m => m.Lesson == lesson);
             if (medalForLesson == null)
             {
                 return false;
             }
 
-            if (medalForLesson.Medal.Type <= medal)
+            if (medalForLesson.Type <= medal)
             {
                 return true;
             }
@@ -190,16 +190,14 @@
 
         private async Task AwardMedal(User user, MedalType medalType, Lesson lesson)
         {
-            var medal = await this.medalRepository.GetWhere(m => m.Type == medalType).Include(m => m.UserLesson).FirstOrDefaultAsync();
-            var oldMedalForLesson = user.MedalLesson.FirstOrDefault(m => m.Lesson == lesson);
+            var oldMedalForLesson = this.medalRepository.GetWhere(m => m.User == user && m.Lesson == lesson).FirstOrDefault();
 
             if (oldMedalForLesson != null)
             {
-                user.MedalLesson.Remove(oldMedalForLesson);
+                await this.medalRepository.RemoveAsync(oldMedalForLesson);
             }
 
-            user.MedalLesson.Add(new MedalUserLesson() { Lesson = lesson, Medal = medal });
-            await this.userRepository.UpdateAsync(user);
+            await this.medalRepository.AddAsync(new Medal { User = user, Lesson = lesson, Type = medalType });
         }
     }
 }

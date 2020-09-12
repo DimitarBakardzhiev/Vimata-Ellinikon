@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vimata.Data;
 
 namespace Vimata.Data.Migrations
 {
     [DbContext(typeof(VimataDbContext))]
-    partial class VimataDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200718154430_MedalsFix")]
+    partial class MedalsFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -196,6 +198,9 @@ namespace Vimata.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")

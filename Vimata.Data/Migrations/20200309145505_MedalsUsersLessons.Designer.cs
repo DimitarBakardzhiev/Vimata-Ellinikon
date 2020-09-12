@@ -63,26 +63,6 @@ namespace Vimata.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Medals");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2020, 3, 9, 16, 55, 5, 163, DateTimeKind.Local).AddTicks(2358),
-                            Type = "Gold"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedDate = new DateTime(2020, 3, 9, 16, 55, 5, 165, DateTimeKind.Local).AddTicks(1508),
-                            Type = "Silver"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedDate = new DateTime(2020, 3, 9, 16, 55, 5, 165, DateTimeKind.Local).AddTicks(1547),
-                            Type = "Bronze"
-                        });
                 });
 
             modelBuilder.Entity("Vimata.Data.Models.MedalUserLesson", b =>
