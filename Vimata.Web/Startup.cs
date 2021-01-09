@@ -67,15 +67,7 @@ namespace Vimata.Web
                 };
             });
 
-            //services.AddDistributedMemoryCache();
             services.AddMemoryCache();
-            //services.AddSession(options =>
-            //{
-            //    options.IdleTimeout = TimeSpan.FromMinutes(30);
-            //    options.Cookie.HttpOnly = true;
-            //    options.Cookie.IsEssential = true;
-            //    options.Cookie.Name = ".Vimata";
-            //});
 
             // configure DI for application services
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -83,6 +75,7 @@ namespace Vimata.Web
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ILessonService, LessonService>();
             services.AddTransient<IExerciseService, ExerciseService>();
+            services.AddTransient<IEmailService, VimataEmailService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -109,7 +102,6 @@ namespace Vimata.Web
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            //app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

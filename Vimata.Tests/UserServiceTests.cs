@@ -44,7 +44,7 @@
 
             var repo = new Repository<User>(db);
 
-            var userServices = new UserService(appSettings, repo);
+            var userServices = new UserService(appSettings, repo, null);
 
             // Act
             bool result = await userServices.ExistsUser(email);
@@ -63,7 +63,7 @@
             // Arrange
             var db = GetInMemoryDb();
             var usersRepo = new Repository<User>(db);
-            var userService = new UserService(appSettings, usersRepo);
+            var userService = new UserService(appSettings, usersRepo, null);
             var user = new User
             {
                 Email = "test@abv.bg",
@@ -93,7 +93,7 @@
             // Arrange
             var db = GetInMemoryDb();
             var usersRepo = new Repository<User>(db);
-            var userService = new UserService(appSettings, usersRepo);
+            var userService = new UserService(appSettings, usersRepo, null);
 
             string email = "pesho@abv.bg";
             string password = "asdfASF@!1";

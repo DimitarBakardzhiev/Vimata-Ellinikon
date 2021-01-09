@@ -15,16 +15,22 @@
     using Vimata.Data.Repositories;
     using System.Threading.Tasks;
     using Vimata.ViewModels.ViewModels.Users;
+    using MailKit.Net.Smtp;
+    using System.Net.Mail;
+    using MimeKit;
+    using MimeKit.Text;
 
     public class UserService : IUserService
     {
         private readonly AppSettings appSettings;
         private readonly IRepository<User> usersRepository;
+        private readonly IEmailService emailService;
 
-        public UserService(IOptions<AppSettings> appSettings, IRepository<User> usersRepository)
+        public UserService(IOptions<AppSettings> appSettings, IRepository<User> usersRepository, IEmailService emailService)
         {
             this.appSettings = appSettings.Value;
             this.usersRepository = usersRepository;
+            this.emailService = emailService;
         }
 
         public async Task<AuthenticationVM> AuthenticateAsync(string email, string password)
@@ -84,6 +90,54 @@
 
             await usersRepository.AddAsync(user);
             return user;
+        }
+
+        public async Task SendResetPasswordConfirmationEmail(string email, string resetUrl)
+        {
+            await this.emailService.SendEmail(
+                email,
+                "Забравена парола",
+                $"Беше изпратена заявка за забравена парола. Ако не сте направили тази заявка игнорирайте това съобщение. За получаване на нова парола натиснете линка {resetUrl}");
+        }
+        public async Task SendNewPasswordEmail(string email, string newPassword)
+        {
+            await this.emailService.SendEmail(email, "Забравена парола", $"Вашата нова парола е: {newPassword}");
+        }
+
+        public async Task ChangePassword(string userId, string newPassword)
+        {
+            var user = await this.usersRepository.GetByIdAsync(int.Parse(userId));
+            user.Password = Hasher.GetHashString(newPassword);
+            await usersRepository.UpdateAsync(user);
+        }
+        public async Task<bool> IsPasswordValid(string userId, string password)
+        {
+            var user = await this.usersRepository.GetByIdAsync(int.Parse(userId));
+            return user.Password == Hasher.GetHashString(password);
+        }
+
+        public async Task<string> GenerateNewPassword(string email)
+        {
+            var user = this.usersRepository.GetWhere(u => u.Email.ToLower() == email.ToLower()).FirstOrDefault();
+            string newPassword = RandomPassword(7);
+            user.Password = Hasher.GetHashString(newPassword);
+            await usersRepository.UpdateAsync(user);
+
+            return newPassword;
+        }
+
+        private string RandomPassword(int length)
+        {
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var password = new StringBuilder();
+            var random = new Random();
+
+            for (int i = 0; i < length; i++)
+            {
+                password.Append(chars[random.Next(chars.Length)]);
+            }
+
+            return password.ToString();
         }
     }
 }

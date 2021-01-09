@@ -13,5 +13,15 @@
         Task<User> SignupUser(SignupVM newUser);
 
         Task<bool> ExistsUser(string email);
+
+        Task SendResetPasswordConfirmationEmail(string email, string resetUrl);
+
+        Task SendNewPasswordEmail(string email, string newPassword);
+
+        Task ChangePassword(string userId, string newPassword);
+
+        Task<string> GenerateNewPassword(string email);
+
+        Task<bool> IsPasswordValid(string userId, string password);
     }
 }
