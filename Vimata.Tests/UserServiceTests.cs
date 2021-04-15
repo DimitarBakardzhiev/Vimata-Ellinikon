@@ -1,29 +1,20 @@
 ﻿namespace Vimata.Tests
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Options;
-    using Moq;
     using Vimata.Common;
-    using Vimata.Data;
     using Vimata.Data.Models;
     using Vimata.Data.Repositories;
     using Vimata.Services.Implementations;
     using Vimata.ViewModels.Users;
     using Xunit;
 
-    public class UserServiceTests
+    public class UserServiceTests : BaseTests
     {
-        private IOptions<AppSettings> appSettings;
-
-        public UserServiceTests()
+        public UserServiceTests() : base()
         {
-            var appSettingsMock = new Mock<IOptions<AppSettings>>();
-            appSettingsMock.SetupGet(s => s.Value).Returns(new AppSettings { Secret = "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf" });
-            this.appSettings = appSettingsMock.Object;
         }
 
         [Theory]
@@ -106,13 +97,60 @@
             Assert.NotNull(await db.Users.FirstOrDefaultAsync(u => u.Email == email));
         }
 
-        private VimataDbContext GetInMemoryDb()
+        [Fact]
+        public async Task GenerateNewPasswordChangesUserPassword()
         {
-            var options = new DbContextOptionsBuilder<VimataDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
+            // Arrange
+            var db = GetInMemoryDb();
+            var repo = new Repository<User>(db);
+            var user = new User() { Id = 1, Email = "asd@asd.com", Password = "234567oihgfd" };
+            var userService = new UserService(appSettings, repo, null);
+            await repo.AddAsync(user);
+            string oldPasswordHash = user.Password;
 
-            return new VimataDbContext(options);
+            // Act
+            await userService.GenerateNewPassword(user.Email);
+
+            // Assert
+            Assert.True(oldPasswordHash != (await repo.FirstOrDefaultAsync(u => u.Id == user.Id)).Password);
+        }
+
+        [Theory]
+        [InlineData("234567oihgfd", "234567oihgfd")]
+        [InlineData("asdf", "234567oihgfd")]
+        public async Task IsPasswordValidWorks(string existingPassword, string inputPassword)
+        {
+            // Arrange
+            var db = GetInMemoryDb();
+            var repo = new Repository<User>(db);
+            var user = new User() { Id = 1, Email = "asd@asd.com", Password = Hasher.GetHashString(existingPassword) };
+            var userService = new UserService(appSettings, repo, null);
+            await repo.AddAsync(user);
+
+            // Act
+            var result = await userService.IsPasswordValid(user.Id.ToString(), inputPassword);
+
+            // Assert
+            Assert.Equal(existingPassword == inputPassword, result);
+        }
+
+        [Fact]
+        public async Task ChangePasswordWorks()
+        {
+            // Arrange
+            var db = GetInMemoryDb();
+            var repo = new Repository<User>(db);
+            var user = new User() { Id = 1, Email = "asd@asd.com", Password = "234567oihgfd" };
+            var userService = new UserService(appSettings, repo, null);
+            await repo.AddAsync(user);
+
+            // Act
+            string newPassword = "12341234";
+            string newPasswordHash = Hasher.GetHashString(newPassword);
+            await userService.ChangePassword(user.Id.ToString(), newPassword);
+
+            // Assert
+            Assert.Equal(newPasswordHash, (await repo.GetByIdAsync(user.Id)).Password);
         }
     }
 }
