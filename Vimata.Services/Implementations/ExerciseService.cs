@@ -30,23 +30,20 @@
             this.userRepository = userRepository;
         }
 
-        #region CreateExercises
         public async Task CreateExercise(Exercise exercise)
         {
             await this.exercisesReporitory.AddAsync(exercise);
         }
-        #endregion
 
-        #region CheckAnswer
-        public async Task<CheckAnswerVM> CheckExercise(CheckExerciseAnswerVM exerciseAnswer)
+        public async Task<CheckAnswerVM> CheckExercise(int exerciseId, string answer)
         {
             var exercise = await this.exercisesReporitory
-                .GetWhere(e => e.Id == exerciseAnswer.ExerciseId)
+                .GetWhere(e => e.Id == exerciseId)
                 .Include(e => e.Options)
                 .Include(e => e.AlternativeAnswers)
                 .FirstOrDefaultAsync();
 
-            if (exercise.CorrectAnswer.ToLowerInvariant() == exerciseAnswer.Answer.ToLower())
+            if (exercise.CorrectAnswer.ToLowerInvariant() == answer.ToLower())
             {
                 return new CheckAnswerVM() { IsCorrect = true, CorrectAnswer = exercise.CorrectAnswer };
             }
@@ -55,7 +52,7 @@
             {
                 foreach (var alternative in exercise.AlternativeAnswers)
                 {
-                    if (exerciseAnswer.Answer.ToLower() == alternative.Content.ToLower())
+                    if (answer.ToLower() == alternative.Content.ToLower())
                     {
                         return new CheckAnswerVM() { IsCorrect = true, CorrectAnswer = exercise.CorrectAnswer };
                     }
@@ -64,9 +61,7 @@
 
             return new CheckAnswerVM() { IsCorrect = false, CorrectAnswer = exercise.CorrectAnswer };
         }
-        #endregion
 
-        #region GetById
         public async Task<Exercise> GetById(int id)
         {
             return await this.exercisesReporitory.GetWhere(e => e.Id == id)
@@ -75,9 +70,7 @@
                 .Include(e => e.Options)
                 .FirstOrDefaultAsync();
         }
-        #endregion
 
-        #region edit
         public async Task EditExercise(int id, Exercise editedExercise)
         {
             var exercise = await this.GetById(id);
@@ -94,16 +87,13 @@
 
             await this.exercisesReporitory.UpdateAsync(exercise);
         }
-        #endregion
 
-        #region delete
         public async Task DeleteExercise(int id)
         {
             var exercise = await this.exercisesReporitory.GetByIdAsync(id);
 
             await this.exercisesReporitory.RemoveAsync(exercise);
         }
-        #endregion
 
         public async Task<IEnumerable<Exercise>> SearchBy(ExerciseSearchCriteria criteria)
         {

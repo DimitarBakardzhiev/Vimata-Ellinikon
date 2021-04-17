@@ -13,7 +13,7 @@
     {
         Task CreateExercise(Exercise exercise);
         
-        Task<CheckAnswerVM> CheckExercise(CheckExerciseAnswerVM exerciseAnswer);
+        Task<CheckAnswerVM> CheckExercise(int exerciseId, string answer);
 
         Task<IEnumerable<Exercise>> GetExercisesByLesson(string lesson);
 

@@ -82,7 +82,7 @@
             }
 
             session.Exercises.Remove(exercise);
-            var result = await this.exerciseService.CheckExercise(exerciseAnswer);
+            var result = await this.exerciseService.CheckExercise(exerciseAnswer.ExerciseId, exerciseAnswer.Answer);
             if (result.IsCorrect)
             {
                 session.AnsweredCorrectly++;
