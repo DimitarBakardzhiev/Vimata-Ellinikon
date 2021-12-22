@@ -60,7 +60,7 @@
             });
 
             // act
-            var result = await service.CheckExercise(1, givenAnswer);
+            var result = await service.CheckExercise(new CheckExerciseAnswerVM { ExerciseId = 1, Answer = givenAnswer });
 
             // assert
             Assert.NotNull(result);

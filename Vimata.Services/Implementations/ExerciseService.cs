@@ -35,15 +35,15 @@
             await this.exercisesReporitory.AddAsync(exercise);
         }
 
-        public async Task<CheckAnswerVM> CheckExercise(int exerciseId, string answer)
+        public async Task<CheckAnswerVM> CheckExercise(CheckExerciseAnswerVM exerciseAnswer)
         {
             var exercise = await this.exercisesReporitory
-                .GetWhere(e => e.Id == exerciseId)
+                .GetWhere(e => e.Id == exerciseAnswer.ExerciseId)
                 .Include(e => e.Options)
                 .Include(e => e.AlternativeAnswers)
                 .FirstOrDefaultAsync();
 
-            if (exercise.CorrectAnswer.ToLowerInvariant() == answer.ToLower())
+            if (exercise.CorrectAnswer.ToLowerInvariant() == exerciseAnswer.Answer.ToLower())
             {
                 return new CheckAnswerVM() { IsCorrect = true, CorrectAnswer = exercise.CorrectAnswer };
             }
@@ -52,7 +52,7 @@
             {
                 foreach (var alternative in exercise.AlternativeAnswers)
                 {
-                    if (answer.ToLower() == alternative.Content.ToLower())
+                    if (exerciseAnswer.Answer.ToLower() == alternative.Content.ToLower())
                     {
                         return new CheckAnswerVM() { IsCorrect = true, CorrectAnswer = exercise.CorrectAnswer };
                     }
