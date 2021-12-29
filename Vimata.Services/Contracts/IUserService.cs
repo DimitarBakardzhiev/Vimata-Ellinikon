@@ -23,5 +23,9 @@
         Task<string> GenerateNewPassword(string email);
 
         Task<bool> IsPasswordValid(string userId, string password);
+
+        Task UpdateUserData(int userId, UpdateUserVM user);
+
+        Task<UpdateUserVM> GetUserData(int userId);
     }
 }

@@ -139,5 +139,23 @@
 
             return password.ToString();
         }
+
+        public async Task UpdateUserData(int userId, UpdateUserVM userUpdate)
+        {
+            var user = await this.usersRepository.GetByIdAsync(userId);
+            
+            user.FirstName = userUpdate.FirstName;
+            user.LastName = userUpdate.LastName;
+            user.Username = userUpdate.Username;
+
+            await usersRepository.UpdateAsync(user);
+        }
+
+        public async Task<UpdateUserVM> GetUserData(int userId)
+        {
+            var user = await this.usersRepository.GetByIdAsync(userId);
+
+            return new UpdateUserVM() { FirstName = user.FirstName, LastName = user.LastName, Username = user.Username };
+        }
     }
 }

@@ -127,5 +127,23 @@
 
             return Forbid();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserData([FromBody] UpdateUserVM userData)
+        {
+            int userId = int.Parse(HttpContext.User.Identity.Name);
+            await this.userService.UpdateUserData(userId, userData);
+
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserData()
+        {
+            int userId = int.Parse(HttpContext.User.Identity.Name);
+            var user = await this.userService.GetUserData(userId);
+
+            return Ok(user);
+        }
     }
 }
