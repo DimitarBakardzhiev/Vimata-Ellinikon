@@ -109,15 +109,18 @@
             return exercises;
         }
 
-        public async Task<IEnumerable<Exercise>> GetExercisesByLesson(string lesson)
+        public async Task<IList<Exercise>> GetExercisesByLesson(string lesson)
         {
             var exercises = await this.exercisesReporitory.GetWhere(e => e.Lesson.Title.ToLower() == lesson.ToLower())
                 .Include(e => e.Lesson)
                 .Include(e => e.AlternativeAnswers)
                 .Include(e => e.Options)
-                .ToArrayAsync();
+                .ToListAsync();
 
-            return exercises;
+            var rnd = new Random();
+            var pickedExercises = exercises.OrderBy(x => rnd.Next()).Take(8).ToList();
+
+            return pickedExercises;
         }
 
         public async Task<MedalType> ProcessResult(ExercisesSession session, int userId)

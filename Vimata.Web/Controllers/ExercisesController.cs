@@ -170,7 +170,7 @@
         [HttpGet("{lesson}")]
         public async Task<IActionResult> SetSession(string lesson)
         {
-            var exercises = await this.exerciseService.GetExercisesByLesson(lesson);
+            IList<Exercise> exercises = await this.exerciseService.GetExercisesByLesson(lesson);
 
             var closedExercises = exercises.Where(e => e.Type == ExerciseType.Closed);
             var openExercises = exercises.Where(e => e.Type == ExerciseType.Open);
@@ -180,7 +180,7 @@
             var session = new ExercisesSession()
             {
                 Id = Guid.NewGuid(),
-                Exercises = new List<Exercise>(exercises),
+                Exercises = exercises,
                 InitialExercisesCount = exercises.Count(),
                 AnsweredCorrectly = 0,
                 Lesson = lesson

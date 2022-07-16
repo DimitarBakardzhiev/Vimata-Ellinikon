@@ -15,7 +15,7 @@
         
         Task<CheckAnswerVM> CheckExercise(CheckExerciseAnswerVM exerciseAnswer);
 
-        Task<IEnumerable<Exercise>> GetExercisesByLesson(string lesson);
+        Task<IList<Exercise>> GetExercisesByLesson(string lesson);
 
         Task<Exercise> GetById(int id);
 
